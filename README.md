@@ -5,7 +5,7 @@ Sistema pub-sub en C para transmitir eventos de partidos. Tiene tres actores:
 - **Broker**: recibe suscripciones y publicaciones, y reenvía cada publicación
   a los suscriptores del tema.
 - **Publisher**: lee eventos desde la terminal y los publica en un tema.
-- **Subscriber**: se suscribe a un tema e imprime los mensajes que recibe.
+- **Subscriber**: se suscribe a uno o varios temas e imprime los mensajes que recibe.
 
 Hay tres implementaciones del mismo sistema, cada una en su carpeta:
 
@@ -21,7 +21,7 @@ Es el mismo en las tres versiones. Son mensajes de texto con el formato `TIPO|te
 
 | Mensaje | Dirección | Significado |
 |---------|-----------|-------------|
-| `SUB\|<tema>\|` | Subscriber → Broker | suscribirse a `<tema>` |
+| `SUB\|<tema>\|` | Subscriber → Broker | suscribirse a `<tema>` (un `SUB` por cada tema que se quiere seguir) |
 | `PUB\|<tema>\|<contenido>` | Publisher → Broker | publicar en `<tema>` |
 | `MSG\|<tema>\|<contenido>` | Broker → Subscriber | reenvío de una publicación |
 
@@ -31,7 +31,8 @@ acumula bytes y separa por `\n`. En UDP cada mensaje es un datagrama.
 En UDP, el publisher antepone un número de secuencia al contenido
 (`#1 Gol de A`, `#2 Tarjeta amarilla`, ...). El subscriber lo usa para avisar
 cuando detecta un **salto** (mensajes perdidos) o un **retroceso** (mensaje
-desordenado o duplicado). La detección supone un solo publisher por tema.
+desordenado o duplicado). La secuencia se lleva por separado para cada tema y la
+detección supone un solo publisher por tema.
 
 ## Compilar
 
@@ -62,7 +63,14 @@ gcc -Wall -Wextra quic/subscriber_quic.c -o quic/subscriber_quic -lssl -lcrypto
 ## Ejecutar
 
 Se abre una terminal por proceso. El broker se inicia primero y escucha en el puerto
-**5000**. En todas las versiones, los clientes reciben `<IP_broker> <puerto_broker> <tema>`.
+**5000**. En todas las versiones, el publisher recibe `<IP_broker> <puerto_broker> <tema>` y el
+subscriber recibe `<IP_broker> <puerto_broker> <tema1> [tema2 ...]` (hasta 10 temas).
+
+Para seguir varios partidos con un solo subscriber:
+
+```sh
+./tcp/subscriber_tcp 127.0.0.1 5000 EquipoA_vs_EquipoB EquipoC_vs_EquipoD
+```
 
 ### TCP
 
@@ -119,9 +127,10 @@ En los publishers, `salir` (o Ctrl+D) termina el programa. En los subscribers se
 ## Prueba automática
 
 `test.sh` levanta 1 broker, 2 suscriptores (temas `EquipoA_vs_EquipoB` y
-`EquipoC_vs_EquipoD`) y 2 publicadores que envían 10 mensajes cada uno en paralelo.
-Luego verifica que cada suscriptor recibió los 10 mensajes de su tema y ninguno del
-otro tema.
+`EquipoC_vs_EquipoD`), 1 suscriptor que sigue ambos temas y 2 publicadores que
+envían 10 mensajes cada uno en paralelo. Luego verifica que cada suscriptor de un
+tema recibió los 10 mensajes de su tema y ninguno del otro, y que el suscriptor de
+ambos temas recibió los 20.
 
 ```sh
 ./test.sh                 # TCP y UDP; también QUIC si openssl es >= 3.5

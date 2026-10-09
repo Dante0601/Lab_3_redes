@@ -13,7 +13,8 @@
  *   - El protocolo de aplicación es EXACTAMENTE el mismo (una línea por
  *     mensaje, terminada en '\n'):
  *
- *       SUB|<tema>|                -> un Subscriber se suscribe a <tema>
+ *       SUB|<tema>|                -> un Subscriber se suscribe a <tema> (puede
+ *                                     mandar varios SUB para seguir varios partidos)
  *       PUB|<tema>|<contenido>     -> un Publisher publica en <tema>
  *       MSG|<tema>|<contenido>     -> el Broker reenvía a los suscritos
  *
@@ -56,6 +57,7 @@
 #define MAX_CLIENTES 50
 #define TAM_BUFFER 1024
 #define TAM_TEMA 64
+#define MAX_TEMAS 10       // máximo de partidos que puede seguir un mismo subscriber
 
 /* ALPN: identificador del protocolo de aplicación que QUIC exige negociar. */
 static const unsigned char alpn_pubsub[] = { 6, 'p', 'u', 'b', 's', 'u', 'b' };
@@ -68,8 +70,8 @@ static const unsigned char alpn_pubsub[] = { 6, 'p', 'u', 'b', 's', 'u', 'b' };
  */
 typedef struct {
     SSL *conn;                  // NULL si esta posición del arreglo está libre
-    char tema[TAM_TEMA];        // tema al que está suscrito (vacío si no aplica)
-    int es_subscriber;          // 1 si ya mandó un SUB
+    char temas[MAX_TEMAS][TAM_TEMA]; // temas a los que está suscrito
+    int num_temas;              // cantidad de temas suscritos (0 = no es subscriber)
     char acumulado[TAM_BUFFER]; // bytes recibidos que aún no forman una línea completa
     int largo_acumulado;        // cantidad de bytes válidos en "acumulado"
 } Cliente;
@@ -80,8 +82,7 @@ Cliente clientes[MAX_CLIENTES];
 void inicializar_clientes() {
     for (int i = 0; i < MAX_CLIENTES; i++) {
         clientes[i].conn = NULL;
-        clientes[i].tema[0] = '\0';
-        clientes[i].es_subscriber = 0;
+        clientes[i].num_temas = 0;
         clientes[i].largo_acumulado = 0;
     }
 }
@@ -91,8 +92,7 @@ void agregar_cliente(SSL *conn) {
     for (int i = 0; i < MAX_CLIENTES; i++) {
         if (clientes[i].conn == NULL) {
             clientes[i].conn = conn;
-            clientes[i].tema[0] = '\0';
-            clientes[i].es_subscriber = 0;
+            clientes[i].num_temas = 0;
             clientes[i].largo_acumulado = 0;
             printf("[Broker] Nueva conexion QUIC (posicion=%d)\n", i);
             return;
@@ -109,21 +109,42 @@ void eliminar_cliente(int i) {
         SSL_free(clientes[i].conn);
         clientes[i].conn = NULL;
     }
-    clientes[i].es_subscriber = 0;
-    clientes[i].tema[0] = '\0';
+    clientes[i].num_temas = 0;
     clientes[i].largo_acumulado = 0;
 }
 
-/* Registra el tema de suscripción de un cliente ya conectado (comando SUB). */
+/* Devuelve 1 si el cliente está suscrito al tema dado. */
+int esta_suscrito(const Cliente *c, const char *tema) {
+    for (int t = 0; t < c->num_temas; t++) {
+        if (strcmp(c->temas[t], tema) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+/*
+ * Agrega un tema a la lista de suscripciones de un cliente ya conectado
+ * (comando SUB). Cada SUB suma un tema; un SUB repetido se ignora.
+ */
 void registrar_suscripcion(int indice, const char *tema) {
-    strncpy(clientes[indice].tema, tema, TAM_TEMA - 1);
-    clientes[indice].tema[TAM_TEMA - 1] = '\0';
-    clientes[indice].es_subscriber = 1;
+    Cliente *c = &clientes[indice];
+    if (esta_suscrito(c, tema)) {
+        return;
+    }
+    if (c->num_temas == MAX_TEMAS) {
+        printf("[Broker] Cliente (posicion=%d) ya sigue %d temas, se ignora '%s'\n",
+               indice, MAX_TEMAS, tema);
+        return;
+    }
+    strncpy(c->temas[c->num_temas], tema, TAM_TEMA - 1);
+    c->temas[c->num_temas][TAM_TEMA - 1] = '\0';
+    c->num_temas++;
     printf("[Broker] Cliente (posicion=%d) suscrito al tema '%s'\n", indice, tema);
 }
 
 /*
- * Reenvía el mensaje publicado a todos los subscribers cuyo tema coincida.
+ * Reenvía el mensaje publicado a todos los subscribers que sigan ese tema.
  * Es el corazón del patrón pub-sub (idéntico al de la versión TCP).
  */
 void difundir_mensaje(const char *tema, const char *contenido) {
@@ -132,9 +153,7 @@ void difundir_mensaje(const char *tema, const char *contenido) {
 
     int enviados = 0;
     for (int i = 0; i < MAX_CLIENTES; i++) {
-        if (clientes[i].conn != NULL &&
-            clientes[i].es_subscriber &&
-            strcmp(clientes[i].tema, tema) == 0) {
+        if (clientes[i].conn != NULL && esta_suscrito(&clientes[i], tema)) {
 
             // SSL_write_ex(): QUIC garantiza entrega completa y en orden
             // dentro del stream (igual que TCP), con retransmisión propia.

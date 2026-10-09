@@ -1,21 +1,23 @@
 /*
  * suscriptor del sistema, usando UDP. Envía al broker un datagrama de
- * suscripción a un partido y luego se queda esperando los datagramas que
- * el broker le reenvíe, imprimiéndolos en pantalla en tiempo real.
+ * suscripción por cada partido que quiere seguir y luego se queda esperando
+ * los datagramas que el broker le reenvíe, imprimiéndolos en pantalla en
+ * tiempo real.
  *
  * Protocolo de aplicación:
- *   Envía  -> SUB|<tema>|\n                     (una sola vez, al iniciar)
+ *   Envía  -> SUB|<tema>|\n                     (uno por cada tema, al iniciar)
  *   Recibe -> MSG|<tema>|#<N> <contenido>\n      (cada vez que hay una publicación)
  *
  * Usa el número de secuencia #N que pone el publisher para avisar si
  * detecta pérdida (salto hacia adelante) o desorden/duplicado (retroceso).
- * Supone un solo publisher por tema; con varios, sus secuencias se mezclan.
+ * La secuencia se lleva por separado para cada tema. Supone un solo
+ * publisher por tema; con varios, sus secuencias se mezclan.
  *
  * Compilar:
  *   gcc -Wall -Wextra subscriber_udp.c -o subscriber_udp
  *
  * Ejecutar:
- *   ./subscriber_udp <IP_broker> <puerto_broker> <tema>
+ *   ./subscriber_udp <IP_broker> <puerto_broker> <tema1> [tema2 ...]
  */
 
 #include <stdio.h>
@@ -28,18 +30,21 @@
 
 
 #define TAM_BUFFER 1024
+#define MAX_TEMAS 10       // máximo de partidos que se pueden seguir a la vez
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 4) {
-        fprintf(stderr, "Uso: %s <IP_broker> <puerto_broker> <tema>\n", argv[0]);
-        fprintf(stderr, "Ejemplo: %s 127.0.0.1 5000 EquipoA_vs_EquipoB\n", argv[0]);
+    if (argc < 4 || argc - 3 > MAX_TEMAS) {
+        fprintf(stderr, "Uso: %s <IP_broker> <puerto_broker> <tema1> [tema2 ...] (max %d temas)\n",
+                argv[0], MAX_TEMAS);
+        fprintf(stderr, "Ejemplo: %s 127.0.0.1 5000 EquipoA_vs_EquipoB EquipoC_vs_EquipoD\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     const char *ip_broker = argv[1];
     int puerto_broker = atoi(argv[2]);
-    const char *tema = argv[3];
+    char **temas = &argv[3];   // temas a seguir: argv[3], argv[4], ...
+    int num_temas = argc - 3;
 
     // socket(): crea el descriptor del socket.
     //   AF_INET    -> IPv4
@@ -63,28 +68,35 @@ int main(int argc, char *argv[]) {
         exit(EXIT_FAILURE);
     }
 
-    // Construir y enviar el mensaje de suscripción: SUB|tema|
-    char mensaje_sub[TAM_BUFFER];
-    snprintf(mensaje_sub, sizeof(mensaje_sub), "SUB|%s|\n", tema);
+    // Enviar un datagrama de suscripción SUB|tema| por cada tema.
+    for (int t = 0; t < num_temas; t++) {
+        char mensaje_sub[TAM_BUFFER];
+        snprintf(mensaje_sub, sizeof(mensaje_sub), "SUB|%s|\n", temas[t]);
 
-    // sendto(): envía la suscripción como un datagrama. Al no haber bind()
-    // explícito, el sistema operativo asigna aquí un puerto local efímero;
-    // el broker guardará esa IP:puerto de origen y enviará los MSG a ella.
-    // Si el broker no está corriendo, este datagrama se pierde sin error.
-    if (sendto(socket_fd, mensaje_sub, strlen(mensaje_sub), 0,
-               (struct sockaddr *)&direccion_broker, sizeof(direccion_broker)) < 0) {
-        perror("Error al enviar la suscripcion");
-        close(socket_fd);
-        exit(EXIT_FAILURE);
+        // sendto(): envía la suscripción como un datagrama. Al no haber bind()
+        // explícito, el sistema operativo asigna en el primer envío un puerto
+        // local efímero, y todos los SUB salen desde esa misma IP:puerto; el
+        // broker la usa para identificar a este subscriber y enviarle los MSG.
+        // Si el broker no está corriendo, el datagrama se pierde sin error.
+        if (sendto(socket_fd, mensaje_sub, strlen(mensaje_sub), 0,
+                   (struct sockaddr *)&direccion_broker, sizeof(direccion_broker)) < 0) {
+            perror("Error al enviar la suscripcion");
+            close(socket_fd);
+            exit(EXIT_FAILURE);
+        }
     }
 
     printf("[Subscriber] Suscripcion enviada al broker %s:%d (UDP)\n", ip_broker, puerto_broker);
-    printf("[Subscriber] Suscrito al tema: %s\n", tema);
+    for (int t = 0; t < num_temas; t++) {
+        printf("[Subscriber] Suscrito al tema: %s\n", temas[t]);
+    }
     printf("[Subscriber] Esperando mensajes... (Ctrl+C para salir)\n\n");
     fflush(stdout);
 
     char buffer[TAM_BUFFER];
-    int ultima_secuencia = 0; // último #N recibido (0 = ninguno todavía)
+    // ultima_secuencia[t]: último #N recibido del tema temas[t] (0 = ninguno todavía).
+    // Cada partido tiene su propio publisher y su propia numeración.
+    int ultima_secuencia[MAX_TEMAS] = {0};
 
     // Bucle de recepción: el subscriber no envía más mensajes propios,
     // solo se queda esperando lo que el broker le reenvíe.
@@ -130,18 +142,26 @@ int main(int argc, char *argv[]) {
             continue;
         }
 
-        // Revisar el número de secuencia "#N" para evidenciar pérdida o desorden.
+        // Buscar a qué tema de los suscritos corresponde el mensaje.
+        int t = 0;
+        while (t < num_temas && strcmp(temas[t], tema_recibido) != 0) {
+            t++;
+        }
+
+        // Revisar el número de secuencia "#N" de ese tema para evidenciar
+        // pérdida o desorden.
         int secuencia;
-        if (sscanf(contenido, "#%d", &secuencia) == 1) {
-            if (ultima_secuencia != 0 && secuencia > ultima_secuencia + 1) {
-                printf("[Subscriber] AVISO: salto de secuencia %d -> %d (se perdieron %d mensaje(s))\n",
-                       ultima_secuencia, secuencia, secuencia - ultima_secuencia - 1);
-            } else if (ultima_secuencia != 0 && secuencia <= ultima_secuencia) {
-                printf("[Subscriber] AVISO: retroceso de secuencia %d -> %d (mensaje desordenado o duplicado)\n",
-                       ultima_secuencia, secuencia);
+        if (t < num_temas && sscanf(contenido, "#%d", &secuencia) == 1) {
+            int ultima = ultima_secuencia[t];
+            if (ultima != 0 && secuencia > ultima + 1) {
+                printf("[Subscriber] AVISO [%s]: salto de secuencia %d -> %d (se perdieron %d mensaje(s))\n",
+                       tema_recibido, ultima, secuencia, secuencia - ultima - 1);
+            } else if (ultima != 0 && secuencia <= ultima) {
+                printf("[Subscriber] AVISO [%s]: retroceso de secuencia %d -> %d (mensaje desordenado o duplicado)\n",
+                       tema_recibido, ultima, secuencia);
             }
-            if (secuencia > ultima_secuencia) {
-                ultima_secuencia = secuencia;
+            if (secuencia > ultima) {
+                ultima_secuencia[t] = secuencia;
             }
         }
 

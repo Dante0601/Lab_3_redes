@@ -1,17 +1,17 @@
 /* 
- * suscriptor del sistema, usando TCP. Se conecta al brocker, se suscribe a un partido,
- * y luego se queda esperando en los mensajes que el broker le
+ * suscriptor del sistema, usando TCP. Se conecta al broker, se suscribe a uno
+ * o varios partidos, y luego se queda esperando los mensajes que el broker le
  * reenvíe, imprimiéndolos en pantalla en tiempo real.
  *
  * Protocolo de aplicación:
- *   Envía  -> SUB|<tema>|\n                 (Inicio de conexion)
+ *   Envía  -> SUB|<tema>|\n                 (uno por cada tema, al conectarse)
  *   Recibe -> MSG|<tema>|<contenido>\n       (cada vez que hay una publicación)
  *
  * Compilar:
  *   gcc subscriber_tcp.c -o subscriber_tcp
  *
  * Ejecutar:
- *   ./subscriber_tcp <IP_broker> <puerto_broker> <tema>
+ *   ./subscriber_tcp <IP_broker> <puerto_broker> <tema1> [tema2 ...]
  */
 
 #include <stdio.h>
@@ -24,18 +24,21 @@
 
 
 #define TAM_BUFFER 1024
+#define MAX_TEMAS 10       // máximo de partidos que se pueden seguir a la vez
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 4) {
-        fprintf(stderr, "Uso: %s <IP_broker> <puerto_broker> <tema>\n", argv[0]);
-        fprintf(stderr, "Ejemplo: %s 127.0.0.1 5000 EquipoA_vs_EquipoB\n", argv[0]);
+    if (argc < 4 || argc - 3 > MAX_TEMAS) {
+        fprintf(stderr, "Uso: %s <IP_broker> <puerto_broker> <tema1> [tema2 ...] (max %d temas)\n",
+                argv[0], MAX_TEMAS);
+        fprintf(stderr, "Ejemplo: %s 127.0.0.1 5000 EquipoA_vs_EquipoB EquipoC_vs_EquipoD\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     const char *ip_broker = argv[1];
     int puerto_broker = atoi(argv[2]);
-    const char *tema = argv[3];
+    char **temas = &argv[3];   // temas a seguir: argv[3], argv[4], ...
+    int num_temas = argc - 3;
 
     // socket(): crea el descriptor del socket.
     //   AF_INET     -> IPv4
@@ -68,20 +71,23 @@ int main(int argc, char *argv[]) {
 
     printf("[Subscriber] Conectado al broker %s:%d\n", ip_broker, puerto_broker);
 
-    // Construir y enviar el mensaje de suscripción: SUB|tema|
-    char mensaje_sub[TAM_BUFFER];
-    snprintf(mensaje_sub, sizeof(mensaje_sub), "SUB|%s|\n", tema);
+    // Enviar un mensaje de suscripción SUB|tema| por cada tema. Todos viajan
+    // por la misma conexión; el broker los agrega a la lista de este socket.
+    for (int t = 0; t < num_temas; t++) {
+        char mensaje_sub[TAM_BUFFER];
+        snprintf(mensaje_sub, sizeof(mensaje_sub), "SUB|%s|\n", temas[t]);
 
-    // send(): envía la solicitud de suscripción al broker. A partir de
-    // este momento, el broker registra este socket como interesado en
-    // el tema indicado.
-    if (send(socket_fd, mensaje_sub, strlen(mensaje_sub), 0) < 0) {
-        perror("Error al enviar la suscripcion");
-        close(socket_fd);
-        exit(EXIT_FAILURE);
+        // send(): envía la solicitud de suscripción al broker. A partir de
+        // este momento, el broker registra este socket como interesado en
+        // el tema indicado.
+        if (send(socket_fd, mensaje_sub, strlen(mensaje_sub), 0) < 0) {
+            perror("Error al enviar la suscripcion");
+            close(socket_fd);
+            exit(EXIT_FAILURE);
+        }
+
+        printf("[Subscriber] Suscrito al tema: %s\n", temas[t]);
     }
-
-    printf("[Subscriber] Suscrito al tema: %s\n", tema);
     printf("[Subscriber] Esperando mensajes... (Ctrl+C para salir)\n\n");
 
     char buffer[TAM_BUFFER];

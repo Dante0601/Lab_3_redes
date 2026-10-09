@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 #
 # Prueba de extremo a extremo del pub-sub: 1 broker, 2 suscriptores en temas
-# distintos y 2 publicadores que envían 10 mensajes cada uno. Verifica que
-# cada suscriptor recibe los 10 mensajes de su tema y ninguno del otro.
+# distintos, 1 suscriptor que sigue ambos temas y 2 publicadores que envían
+# 10 mensajes cada uno. Verifica que cada suscriptor de un tema recibe los 10
+# mensajes de su tema y ninguno del otro, y que el de ambos temas recibe los 20.
 #
 # Uso:
 #   ./test.sh              prueba TCP y UDP, y QUIC si openssl es >= 3.5
@@ -50,6 +51,28 @@ verificar() {
     return 1
 }
 
+# Revisa la salida del suscriptor que sigue los dos temas: debe tener los N
+# mensajes de cada uno. Imprime el resultado y devuelve 0/1.
+verificar_ambos() {
+    local archivo=$1 etiqueta=$2
+    local a b faltan=""
+    a=$(contar_tema "$archivo" "$TEMA_A")
+    b=$(contar_tema "$archivo" "$TEMA_B")
+    for tema in $TEMA_A $TEMA_B; do
+        for i in $(seq 1 $N); do
+            grep -q "^>> \[$tema\] .*evento $tema $i\$" "$archivo" || faltan="$faltan $tema#$i"
+        done
+    done
+    if [ "$a" -eq "$N" ] && [ "$b" -eq "$N" ] && [ -z "$faltan" ]; then
+        echo "  OK   $etiqueta: $a/$N de '$TEMA_A', $b/$N de '$TEMA_B'"
+        return 0
+    fi
+    echo "  FALLA $etiqueta: $a/$N de '$TEMA_A', $b/$N de '$TEMA_B'${faltan:+, faltan:$faltan}"
+    echo "  --- salida de $etiqueta ---"
+    sed 's/^/  | /' "$archivo"
+    return 1
+}
+
 # Mata un proceso si sigue vivo y espera a que termine.
 detener() {
     for pid in "$@"; do
@@ -88,7 +111,9 @@ probar() {
     local pid_sub_a=$!
     "./$dir/subscriber_$proto" $IP "$PUERTO" $TEMA_B >"$logs/sub_b.log" 2>&1 &
     local pid_sub_b=$!
-    sleep 1   # dar tiempo a que el broker registre ambas suscripciones
+    "./$dir/subscriber_$proto" $IP "$PUERTO" $TEMA_A $TEMA_B >"$logs/sub_ab.log" 2>&1 &
+    local pid_sub_ab=$!
+    sleep 1   # dar tiempo a que el broker registre todas las suscripciones
 
     # Los dos publicadores corren en paralelo; cada uno manda N eventos y "salir".
     local pids_pub=()
@@ -104,11 +129,12 @@ probar() {
     # sale de su bucle normalmente y vacía su salida estándar.
     detener "$pid_broker"
     sleep 0.3
-    detener "$pid_sub_a" "$pid_sub_b"
+    detener "$pid_sub_a" "$pid_sub_b" "$pid_sub_ab"
 
     local r=0
     verificar "$logs/sub_a.log" $TEMA_A $TEMA_B "suscriptor A" || r=1
     verificar "$logs/sub_b.log" $TEMA_B $TEMA_A "suscriptor B" || r=1
+    verificar_ambos "$logs/sub_ab.log" "suscriptor A+B" || r=1
     if [ "$proto" = udp ] && grep -q AVISO "$logs"/sub_*.log; then
         echo "  nota: avisos de secuencia en UDP:"; grep -h AVISO "$logs"/sub_*.log | sed 's/^/  | /'
     fi

@@ -3,21 +3,21 @@
  * ---------------------------------------------------------------------
  * Subscriber (suscriptor) del sistema publicador-suscriptor, usando QUIC
  * (API nativa de OpenSSL 3.5+). Es la versión QUIC de subscriber_tcp.c:
- * se conecta al broker, se suscribe a un tema (partido) y queda esperando
- * en bucle los mensajes que el broker le reenvíe.
+ * se conecta al broker, se suscribe a uno o varios temas (partidos) y queda
+ * esperando en bucle los mensajes que el broker le reenvíe.
  *
  * Protocolo de aplicación (idéntico al de TCP):
- *   Envía  -> SUB|<tema>|\n                 (una sola vez, al conectarse)
+ *   Envía  -> SUB|<tema>|\n                 (uno por cada tema, al conectarse)
  *   Recibe -> MSG|<tema>|<contenido>\n       (cada vez que hay una publicación)
  *
  * Compilar:
  *   gcc subscriber_quic.c -o subscriber_quic -lssl -lcrypto
  *
  * Ejecutar:
- *   ./subscriber_quic <IP_broker> <puerto_broker> <tema>
+ *   ./subscriber_quic <IP_broker> <puerto_broker> <tema1> [tema2 ...]
  *
  * Ejemplo:
- *   ./subscriber_quic 127.0.0.1 5000 EquipoA_vs_EquipoB
+ *   ./subscriber_quic 127.0.0.1 5000 EquipoA_vs_EquipoB EquipoC_vs_EquipoD
  * ---------------------------------------------------------------------
  */
 
@@ -36,6 +36,7 @@
 #include <openssl/quic.h>
 
 #define TAM_BUFFER 1024
+#define MAX_TEMAS 10       // máximo de partidos que se pueden seguir a la vez
 
 /* ALPN: debe coincidir con el que acepta el broker. */
 static const unsigned char alpn_pubsub[] = { 6, 'p', 'u', 'b', 's', 'u', 'b' };
@@ -118,15 +119,17 @@ static SSL *conectar_quic(SSL_CTX *ctx, const char *ip_broker, int puerto_broker
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 4) {
-        fprintf(stderr, "Uso: %s <IP_broker> <puerto_broker> <tema>\n", argv[0]);
-        fprintf(stderr, "Ejemplo: %s 127.0.0.1 5000 EquipoA_vs_EquipoB\n", argv[0]);
+    if (argc < 4 || argc - 3 > MAX_TEMAS) {
+        fprintf(stderr, "Uso: %s <IP_broker> <puerto_broker> <tema1> [tema2 ...] (max %d temas)\n",
+                argv[0], MAX_TEMAS);
+        fprintf(stderr, "Ejemplo: %s 127.0.0.1 5000 EquipoA_vs_EquipoB EquipoC_vs_EquipoD\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
     const char *ip_broker = argv[1];
     int puerto_broker = atoi(argv[2]);
-    const char *tema = argv[3];
+    char **temas = &argv[3];   // temas a seguir: argv[3], argv[4], ...
+    int num_temas = argc - 3;
 
     // OSSL_QUIC_client_method(): este contexto habla QUIC.
     SSL_CTX *ctx = SSL_CTX_new(OSSL_QUIC_client_method());
@@ -148,22 +151,25 @@ int main(int argc, char *argv[]) {
 
     printf("[Subscriber] Conectado al broker %s:%d (QUIC)\n", ip_broker, puerto_broker);
 
-    // Construir y enviar el mensaje de suscripción: SUB|tema|
-    char mensaje_sub[TAM_BUFFER];
-    snprintf(mensaje_sub, sizeof(mensaje_sub), "SUB|%s|\n", tema);
+    // Enviar un mensaje de suscripción SUB|tema| por cada tema, todos por el
+    // mismo stream; el broker los agrega a la lista de esta conexión.
+    for (int t = 0; t < num_temas; t++) {
+        char mensaje_sub[TAM_BUFFER];
+        snprintf(mensaje_sub, sizeof(mensaje_sub), "SUB|%s|\n", temas[t]);
 
-    // SSL_write_ex(): equivalente a send(). El primer write abre el stream
-    // bidireccional; el broker registra esta conexión como interesada en el tema.
-    size_t escritos = 0;
-    if (!SSL_write_ex(ssl, mensaje_sub, strlen(mensaje_sub), &escritos)) {
-        fprintf(stderr, "Error al enviar la suscripcion\n");
-        ERR_print_errors_fp(stderr);
-        SSL_free(ssl);
-        SSL_CTX_free(ctx);
-        exit(EXIT_FAILURE);
+        // SSL_write_ex(): equivalente a send(). El primer write abre el stream
+        // bidireccional; el broker registra esta conexión como interesada en el tema.
+        size_t escritos = 0;
+        if (!SSL_write_ex(ssl, mensaje_sub, strlen(mensaje_sub), &escritos)) {
+            fprintf(stderr, "Error al enviar la suscripcion\n");
+            ERR_print_errors_fp(stderr);
+            SSL_free(ssl);
+            SSL_CTX_free(ctx);
+            exit(EXIT_FAILURE);
+        }
+
+        printf("[Subscriber] Suscrito al tema: %s\n", temas[t]);
     }
-
-    printf("[Subscriber] Suscrito al tema: %s\n", tema);
     printf("[Subscriber] Esperando mensajes... (Ctrl+C para salir)\n\n");
 
     signal(SIGINT, manejar_sigint);

@@ -5,7 +5,8 @@
  *
  * Protocolo de aplicación (texto plano, un mensaje por datagrama):
  *
- *   SUB|<tema>|                       un Subscriber se suscribe a <tema>
+ *   SUB|<tema>|                       un Subscriber se suscribe a <tema> (puede mandar
+ *                                     varios SUB para seguir varios partidos)
  *   PUB|<tema>|<contenido>            un Publisher publica <contenido> en <tema>
  *   MSG|<tema>|<contenido>            el Broker reenvía el mensaje a cada Subscriber suscrito a <tema>
  *
@@ -36,6 +37,7 @@
 #define MAX_SUSCRIPTORES 50
 #define TAM_BUFFER 1024
 #define TAM_TEMA 64
+#define MAX_TEMAS 10       // máximo de partidos que puede seguir un mismo subscriber
 
 
 // Representa a un subscriber registrado. Como UDP no tiene conexiones,
@@ -43,7 +45,8 @@
 typedef struct {
     int en_uso;                    // 0 si esta posición del arreglo está libre
     struct sockaddr_in direccion;  // IP y puerto desde donde el subscriber mandó el SUB
-    char tema[TAM_TEMA];           // tema al que está suscrito
+    char temas[MAX_TEMAS][TAM_TEMA]; // temas a los que está suscrito
+    int num_temas;                 // cantidad de temas suscritos
 } Suscriptor;
 
 Suscriptor suscriptores[MAX_SUSCRIPTORES];
@@ -52,7 +55,7 @@ Suscriptor suscriptores[MAX_SUSCRIPTORES];
 void inicializar_suscriptores() {
     for (int i = 0; i < MAX_SUSCRIPTORES; i++) {
         suscriptores[i].en_uso = 0;
-        suscriptores[i].tema[0] = '\0';
+        suscriptores[i].num_temas = 0;
     }
 }
 
@@ -61,46 +64,71 @@ int misma_direccion(const struct sockaddr_in *a, const struct sockaddr_in *b) {
     return a->sin_addr.s_addr == b->sin_addr.s_addr && a->sin_port == b->sin_port;
 }
 
-// Registra (o actualiza) la suscripción de la dirección dada (comando SUB).
-// Si la misma IP:puerto ya estaba registrada, solo se actualiza su tema,
-// así un SUB repetido no crea una entrada duplicada.
+// Devuelve 1 si el suscriptor está suscrito al tema dado.
+int esta_suscrito(const Suscriptor *s, const char *tema) {
+    for (int t = 0; t < s->num_temas; t++) {
+        if (strcmp(s->temas[t], tema) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Registra la suscripción de la dirección dada a un tema (comando SUB).
+// Un subscriber que sigue varios partidos manda un SUB por cada uno desde la
+// misma IP:puerto: si la dirección ya estaba registrada se le agrega el tema
+// a su lista en vez de crear otra entrada. Un SUB repetido se ignora.
 void registrar_suscripcion(const struct sockaddr_in *direccion, const char *tema) {
-    int libre = -1;
+    Suscriptor *s = NULL;
 
     for (int i = 0; i < MAX_SUSCRIPTORES; i++) {
         if (suscriptores[i].en_uso && misma_direccion(&suscriptores[i].direccion, direccion)) {
-            strncpy(suscriptores[i].tema, tema, TAM_TEMA - 1);
-            suscriptores[i].tema[TAM_TEMA - 1] = '\0';
-            printf("[Broker] Suscriptor %s:%d actualizado al tema '%s'\n",
-                   inet_ntoa(direccion->sin_addr), ntohs(direccion->sin_port), tema);
-            return;
-        }
-        if (!suscriptores[i].en_uso && libre == -1) {
-            libre = i;
+            s = &suscriptores[i];
+            break;
         }
     }
 
-    if (libre == -1) {
+    if (s == NULL) {
+        for (int i = 0; i < MAX_SUSCRIPTORES; i++) {
+            if (!suscriptores[i].en_uso) {
+                s = &suscriptores[i];
+                s->en_uso = 1;
+                s->direccion = *direccion;
+                s->num_temas = 0;
+                break;
+            }
+        }
+    }
+
+    if (s == NULL) {
         printf("[Broker] Limite de suscriptores alcanzado, se ignora el SUB.\n");
         return;
     }
 
-    suscriptores[libre].en_uso = 1;
-    suscriptores[libre].direccion = *direccion;
-    strncpy(suscriptores[libre].tema, tema, TAM_TEMA - 1);
-    suscriptores[libre].tema[TAM_TEMA - 1] = '\0';
+    if (esta_suscrito(s, tema)) {
+        return;
+    }
+    if (s->num_temas == MAX_TEMAS) {
+        printf("[Broker] Suscriptor %s:%d ya sigue %d temas, se ignora '%s'\n",
+               inet_ntoa(direccion->sin_addr), ntohs(direccion->sin_port), MAX_TEMAS, tema);
+        return;
+    }
+
+    strncpy(s->temas[s->num_temas], tema, TAM_TEMA - 1);
+    s->temas[s->num_temas][TAM_TEMA - 1] = '\0';
+    s->num_temas++;
     printf("[Broker] Suscriptor %s:%d suscrito al tema '%s'\n",
            inet_ntoa(direccion->sin_addr), ntohs(direccion->sin_port), tema);
 }
 
-// Reenvía el mensaje publicado a todos los subscribers cuyo tema coincida.
+// Reenvía el mensaje publicado a todos los subscribers que sigan ese tema.
 void difundir_mensaje(int socket_fd, const char *tema, const char *contenido) {
     char mensaje_salida[TAM_BUFFER];
     snprintf(mensaje_salida, TAM_BUFFER, "MSG|%s|%s\n", tema, contenido);
 
     int enviados = 0;
     for (int i = 0; i < MAX_SUSCRIPTORES; i++) {
-        if (suscriptores[i].en_uso && strcmp(suscriptores[i].tema, tema) == 0) {
+        if (suscriptores[i].en_uso && esta_suscrito(&suscriptores[i], tema)) {
 
             // sendto(): envía UN datagrama a la dirección indicada. A diferencia
             // de send() en TCP, no hay garantía de que llegue ni de que llegue

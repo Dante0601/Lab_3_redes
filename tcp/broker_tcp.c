@@ -5,7 +5,8 @@
  *
  * Protocolo de aplicación (texto plano, un mensaje por línea):
  *
- *   SUB|<tema>|                       un Subscriber se suscribe a <tema>
+ *   SUB|<tema>|                       un Subscriber se suscribe a <tema> (puede mandar
+ *                                     varios SUB para seguir varios partidos)
  *   PUB|<tema>|<contenido>            un Publisher publica <contenido> en <tema>
  *   MSG|<tema>|<contenido>            el Broker reenvía el mensaje a cada Subscriber suscrito a <tema>
  *
@@ -29,13 +30,14 @@
 #define MAX_CLIENTES 50
 #define TAM_BUFFER 1024
 #define TAM_TEMA 64
+#define MAX_TEMAS 10       // máximo de partidos que puede seguir un mismo subscriber
 
 
  //Representa a un cliente conectado.
 typedef struct {
     int socket_fd;             // -1 si esta posición del arreglo está libre
-    char tema[TAM_TEMA];       // tema al que está suscrito (vacío si no aplica)
-    int es_subscriber;         // 1 si ya mandó un SUB
+    char temas[MAX_TEMAS][TAM_TEMA]; // temas a los que está suscrito
+    int num_temas;             // cantidad de temas suscritos (0 = no es subscriber)
     char acumulado[TAM_BUFFER]; // bytes recibidos que aún no forman una línea completa
     int largo_acumulado;       // cantidad de bytes válidos en "acumulado"
 } Cliente;
@@ -46,8 +48,7 @@ Cliente clientes[MAX_CLIENTES];
 void inicializar_clientes() {
     for (int i = 0; i < MAX_CLIENTES; i++) {
         clientes[i].socket_fd = -1;
-        clientes[i].tema[0] = '\0';
-        clientes[i].es_subscriber = 0;
+        clientes[i].num_temas = 0;
         clientes[i].largo_acumulado = 0;
     }
 }
@@ -57,8 +58,7 @@ void agregar_cliente(int socket_fd) {
     for (int i = 0; i < MAX_CLIENTES; i++) {
         if (clientes[i].socket_fd == -1) {
             clientes[i].socket_fd = socket_fd;
-            clientes[i].tema[0] = '\0';
-            clientes[i].es_subscriber = 0;
+            clientes[i].num_temas = 0;
             clientes[i].largo_acumulado = 0;
             return;
         }
@@ -72,21 +72,40 @@ void eliminar_cliente(int socket_fd) {
     for (int i = 0; i < MAX_CLIENTES; i++) {
         if (clientes[i].socket_fd == socket_fd) {
             clientes[i].socket_fd = -1;
-            clientes[i].es_subscriber = 0;
-            clientes[i].tema[0] = '\0';
+            clientes[i].num_temas = 0;
             clientes[i].largo_acumulado = 0;
             return;
         }
     }
 }
 
-// Registra el tema de suscripción de un cliente ya conectado (comando SUB).    
+// Devuelve 1 si el cliente está suscrito al tema dado.
+int esta_suscrito(const Cliente *c, const char *tema) {
+    for (int t = 0; t < c->num_temas; t++) {
+        if (strcmp(c->temas[t], tema) == 0) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+// Agrega un tema a la lista de suscripciones de un cliente ya conectado (comando SUB).
+// Cada SUB suma un tema; un SUB repetido del mismo tema se ignora.
 void registrar_suscripcion(int socket_fd, const char *tema) {
     for (int i = 0; i < MAX_CLIENTES; i++) {
         if (clientes[i].socket_fd == socket_fd) {
-            strncpy(clientes[i].tema, tema, TAM_TEMA - 1);
-            clientes[i].tema[TAM_TEMA - 1] = '\0';
-            clientes[i].es_subscriber = 1;
+            Cliente *c = &clientes[i];
+            if (esta_suscrito(c, tema)) {
+                return;
+            }
+            if (c->num_temas == MAX_TEMAS) {
+                printf("[Broker] Cliente (fd=%d) ya sigue %d temas, se ignora '%s'\n",
+                       socket_fd, MAX_TEMAS, tema);
+                return;
+            }
+            strncpy(c->temas[c->num_temas], tema, TAM_TEMA - 1);
+            c->temas[c->num_temas][TAM_TEMA - 1] = '\0';
+            c->num_temas++;
             printf("[Broker] Cliente (fd=%d) suscrito al tema '%s'\n", socket_fd, tema);
             return;
         }
@@ -94,7 +113,7 @@ void registrar_suscripcion(int socket_fd, const char *tema) {
 }
 
 
-// Reenvía el mensaje publicado a todos los subscribers cuyo temacoincida
+// Reenvía el mensaje publicado a todos los subscribers que sigan ese tema
 
 void difundir_mensaje(const char *tema, const char *contenido) {
     char mensaje_salida[TAM_BUFFER];
@@ -102,9 +121,7 @@ void difundir_mensaje(const char *tema, const char *contenido) {
 
     int enviados = 0;
     for (int i = 0; i < MAX_CLIENTES; i++) {
-        if (clientes[i].socket_fd != -1 &&
-            clientes[i].es_subscriber &&
-            strcmp(clientes[i].tema, tema) == 0) {
+        if (clientes[i].socket_fd != -1 && esta_suscrito(&clientes[i], tema)) {
 
             // send(): TCP garantiza que estos bytes lleguen completos
             // y en orden al subscriber correspondiente.
