@@ -1,45 +1,45 @@
 [Broker] Escuchando UDP en el puerto 5000...
-[Broker] Suscriptor 127.0.0.1:39889 suscrito al tema 'EquipoA_vs_EquipoB'
-[Broker] Suscriptor 127.0.0.1:36488 suscrito al tema 'EquipoA_vs_EquipoB'
-[Broker] Suscriptor 127.0.0.1:34546 suscrito al tema 'EquipoC_vs_EquipoD'
-[Broker] Suscriptor 127.0.0.1:36488 suscrito al tema 'EquipoC_vs_EquipoD'
-[Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#1 evento EquipoC_vs_EquipoD 1'
-[Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
+[Broker] Suscriptor 127.0.0.1:33963 suscrito al tema 'EquipoA_vs_EquipoB'
+[Broker] Suscriptor 127.0.0.1:55030 suscrito al tema 'EquipoA_vs_EquipoB'
+[Broker] Suscriptor 127.0.0.1:55030 suscrito al tema 'EquipoC_vs_EquipoD'
+[Broker] Suscriptor 127.0.0.1:48205 suscrito al tema 'EquipoC_vs_EquipoD'
 [Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#1 evento EquipoA_vs_EquipoB 1'
 [Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
-[Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#2 evento EquipoC_vs_EquipoD 2'
+[Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#1 evento EquipoC_vs_EquipoD 1'
 [Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#2 evento EquipoA_vs_EquipoB 2'
 [Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#2 evento EquipoC_vs_EquipoD 2'
+[Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#3 evento EquipoC_vs_EquipoD 3'
 [Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#3 evento EquipoA_vs_EquipoB 3'
 [Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
-[Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#4 evento EquipoC_vs_EquipoD 4'
-[Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#4 evento EquipoA_vs_EquipoB 4'
 [Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#4 evento EquipoC_vs_EquipoD 4'
+[Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#5 evento EquipoC_vs_EquipoD 5'
 [Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#5 evento EquipoA_vs_EquipoB 5'
 [Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
-[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#6 evento EquipoA_vs_EquipoB 6'
-[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#6 evento EquipoC_vs_EquipoD 6'
 [Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
-[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#7 evento EquipoA_vs_EquipoB 7'
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#6 evento EquipoA_vs_EquipoB 6'
 [Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#7 evento EquipoC_vs_EquipoD 7'
 [Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#7 evento EquipoA_vs_EquipoB 7'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#8 evento EquipoC_vs_EquipoD 8'
 [Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#8 evento EquipoA_vs_EquipoB 8'
 [Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
-[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#9 evento EquipoA_vs_EquipoB 9'
-[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#9 evento EquipoC_vs_EquipoD 9'
 [Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
-[Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#10 evento EquipoC_vs_EquipoD 10'
-[Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#9 evento EquipoA_vs_EquipoB 9'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
 [Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#10 evento EquipoA_vs_EquipoB 10'
 [Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 2 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoC_vs_EquipoD' contenido='#10 evento EquipoC_vs_EquipoD 10'
+[Broker] Mensaje del tema 'EquipoC_vs_EquipoD' difundido a 2 suscriptor(es)

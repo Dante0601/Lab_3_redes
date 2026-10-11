@@ -2,64 +2,59 @@
 [Subscriber] Suscrito al tema: EquipoA_vs_EquipoB
 [Subscriber] Esperando mensajes... (Ctrl+C para salir)
 
->> [EquipoA_vs_EquipoB] #2 evento 2
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 2 -> 7 (se perdieron 4 mensaje(s))
->> [EquipoA_vs_EquipoB] #7 evento 7
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 7 -> 9 (se perdieron 1 mensaje(s))
->> [EquipoA_vs_EquipoB] #9 evento 9
->> [EquipoA_vs_EquipoB] #10 evento 10
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 10 -> 16 (se perdieron 5 mensaje(s))
->> [EquipoA_vs_EquipoB] #16 evento 16
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 16 -> 20 (se perdieron 3 mensaje(s))
->> [EquipoA_vs_EquipoB] #20 evento 20
->> [EquipoA_vs_EquipoB] #21 evento 21
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 21 -> 3 (mensaje desordenado o duplicado)
 >> [EquipoA_vs_EquipoB] #3 evento 3
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 21 -> 4 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #4 evento 4
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 21 -> 31 (se perdieron 9 mensaje(s))
->> [EquipoA_vs_EquipoB] #31 evento 31
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 31 -> 6 (mensaje desordenado o duplicado)
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 3 -> 6 (se perdieron 2 mensaje(s))
 >> [EquipoA_vs_EquipoB] #6 evento 6
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 31 -> 35 (se perdieron 3 mensaje(s))
->> [EquipoA_vs_EquipoB] #35 evento 35
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 35 -> 8 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #8 evento 8
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 35 -> 11 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #11 evento 11
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 35 -> 15 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #15 evento 15
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 35 -> 18 (mensaje desordenado o duplicado)
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 6 -> 18 (se perdieron 11 mensaje(s))
 >> [EquipoA_vs_EquipoB] #18 evento 18
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 35 -> 50 (se perdieron 14 mensaje(s))
->> [EquipoA_vs_EquipoB] #50 evento 50
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 22 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #22 evento 22
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 26 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #26 evento 26
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 30 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #30 evento 30
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 32 (mensaje desordenado o duplicado)
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 18 -> 21 (se perdieron 2 mensaje(s))
+>> [EquipoA_vs_EquipoB] #21 evento 21
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 21 -> 23 (se perdieron 1 mensaje(s))
+>> [EquipoA_vs_EquipoB] #23 evento 23
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 23 -> 25 (se perdieron 1 mensaje(s))
+>> [EquipoA_vs_EquipoB] #25 evento 25
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 25 -> 32 (se perdieron 6 mensaje(s))
 >> [EquipoA_vs_EquipoB] #32 evento 32
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 33 (mensaje desordenado o duplicado)
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 32 -> 2 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #2 evento 2
 >> [EquipoA_vs_EquipoB] #33 evento 33
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 36 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #36 evento 36
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 38 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #38 evento 38
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 41 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #41 evento 41
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 42 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #42 evento 42
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 43 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #43 evento 43
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 44 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #44 evento 44
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 46 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #46 evento 46
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 47 (mensaje desordenado o duplicado)
->> [EquipoA_vs_EquipoB] #47 evento 47
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 48 (mensaje desordenado o duplicado)
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 33 -> 5 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #5 evento 5
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 33 -> 40 (se perdieron 6 mensaje(s))
+>> [EquipoA_vs_EquipoB] #40 evento 40
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 40 -> 8 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #8 evento 8
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 40 -> 13 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #13 evento 13
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: salto de secuencia 40 -> 48 (se perdieron 7 mensaje(s))
 >> [EquipoA_vs_EquipoB] #48 evento 48
-[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 50 -> 49 (mensaje desordenado o duplicado)
 >> [EquipoA_vs_EquipoB] #49 evento 49
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 20 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #20 evento 20
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 22 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #22 evento 22
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 26 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #26 evento 26
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 27 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #27 evento 27
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 30 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #30 evento 30
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 34 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #34 evento 34
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 35 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #35 evento 35
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 38 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #38 evento 38
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 39 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #39 evento 39
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 42 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #42 evento 42
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 43 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #43 evento 43
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 44 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #44 evento 44
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 45 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #45 evento 45
+[Subscriber] AVISO [EquipoA_vs_EquipoB]: retroceso de secuencia 49 -> 47 (mensaje desordenado o duplicado)
+>> [EquipoA_vs_EquipoB] #47 evento 47
+>> [EquipoA_vs_EquipoB] #50 evento 50

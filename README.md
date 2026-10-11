@@ -153,8 +153,10 @@ los logs de la terminal de cada proceso:
 | `tcp_redmala.pcap` | TCP con red degradada | `CAPTURA=1 ./test_red_mala.sh tcp` |
 | `udp_redmala.pcap` | UDP con red degradada | `CAPTURA=1 ./test_red_mala.sh udp` |
 
-Los logs de cada captura quedan en la carpeta con el mismo nombre (por ejemplo,
-`capturas/udp_pubsub/`). Las capturas se graban con `dumpcap`, que viene con
+Las capturas del repositorio son las que se usaron en el informe. Volver a correr
+un script las reemplaza, y como netem pierde paquetes al azar, los resultados de
+la red degradada salen distintos. Los logs de cada captura quedan en la carpeta
+con el mismo nombre (por ejemplo, `capturas/udp_pubsub/`). Las capturas se graban con `dumpcap`, que viene con
 Wireshark. El usuario debe estar en el grupo `wireshark`; no hace falta sudo,
 salvo para `tc` en la prueba de red degradada.
 
@@ -191,9 +193,10 @@ MEDIR=1 ./captura_tcp.sh         # además mide CPU y memoria
 wireshark capturas/tcp_pubsub.pcap
 ```
 
-Resultado de la última corrida: cada suscriptor recibió 20/20 mensajes y la
-captura tiene 148 paquetes. Los logs de la terminal quedan en
-`capturas/tcp_pubsub/` (`broker.log`, `sub_1.log`, `sub_2.log`, `pub_1.log`, `pub_2.log`).
+La captura usada en el informe (`capturas/tcp_pubsub.pcap`) tiene 159 paquetes.
+Al correr el script, los logs de la terminal quedan en `capturas/tcp_pubsub/`
+(`broker.log`, `sub_1.log`, `sub_2.log`, `pub_1.log`, `pub_2.log`). Una
+corrida nueva reemplaza la captura del informe.
 
 En Wireshark se ven:
 

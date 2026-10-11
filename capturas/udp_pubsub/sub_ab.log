@@ -3,23 +3,23 @@
 [Subscriber] Suscrito al tema: EquipoC_vs_EquipoD
 [Subscriber] Esperando mensajes... (Ctrl+C para salir)
 
->> [EquipoC_vs_EquipoD] #1 evento EquipoC_vs_EquipoD 1
 >> [EquipoA_vs_EquipoB] #1 evento EquipoA_vs_EquipoB 1
->> [EquipoC_vs_EquipoD] #2 evento EquipoC_vs_EquipoD 2
+>> [EquipoC_vs_EquipoD] #1 evento EquipoC_vs_EquipoD 1
 >> [EquipoA_vs_EquipoB] #2 evento EquipoA_vs_EquipoB 2
+>> [EquipoC_vs_EquipoD] #2 evento EquipoC_vs_EquipoD 2
 >> [EquipoC_vs_EquipoD] #3 evento EquipoC_vs_EquipoD 3
 >> [EquipoA_vs_EquipoB] #3 evento EquipoA_vs_EquipoB 3
->> [EquipoC_vs_EquipoD] #4 evento EquipoC_vs_EquipoD 4
 >> [EquipoA_vs_EquipoB] #4 evento EquipoA_vs_EquipoB 4
+>> [EquipoC_vs_EquipoD] #4 evento EquipoC_vs_EquipoD 4
 >> [EquipoC_vs_EquipoD] #5 evento EquipoC_vs_EquipoD 5
 >> [EquipoA_vs_EquipoB] #5 evento EquipoA_vs_EquipoB 5
->> [EquipoA_vs_EquipoB] #6 evento EquipoA_vs_EquipoB 6
 >> [EquipoC_vs_EquipoD] #6 evento EquipoC_vs_EquipoD 6
->> [EquipoA_vs_EquipoB] #7 evento EquipoA_vs_EquipoB 7
+>> [EquipoA_vs_EquipoB] #6 evento EquipoA_vs_EquipoB 6
 >> [EquipoC_vs_EquipoD] #7 evento EquipoC_vs_EquipoD 7
+>> [EquipoA_vs_EquipoB] #7 evento EquipoA_vs_EquipoB 7
 >> [EquipoC_vs_EquipoD] #8 evento EquipoC_vs_EquipoD 8
 >> [EquipoA_vs_EquipoB] #8 evento EquipoA_vs_EquipoB 8
->> [EquipoA_vs_EquipoB] #9 evento EquipoA_vs_EquipoB 9
 >> [EquipoC_vs_EquipoD] #9 evento EquipoC_vs_EquipoD 9
->> [EquipoC_vs_EquipoD] #10 evento EquipoC_vs_EquipoD 10
+>> [EquipoA_vs_EquipoB] #9 evento EquipoA_vs_EquipoB 9
 >> [EquipoA_vs_EquipoB] #10 evento EquipoA_vs_EquipoB 10
+>> [EquipoC_vs_EquipoD] #10 evento EquipoC_vs_EquipoD 10
