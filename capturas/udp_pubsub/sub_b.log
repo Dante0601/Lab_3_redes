@@ -1,0 +1,14 @@
+[Subscriber] Suscripcion enviada al broker 127.0.0.1:5000 (UDP)
+[Subscriber] Suscrito al tema: EquipoC_vs_EquipoD
+[Subscriber] Esperando mensajes... (Ctrl+C para salir)
+
+>> [EquipoC_vs_EquipoD] #1 evento EquipoC_vs_EquipoD 1
+>> [EquipoC_vs_EquipoD] #2 evento EquipoC_vs_EquipoD 2
+>> [EquipoC_vs_EquipoD] #3 evento EquipoC_vs_EquipoD 3
+>> [EquipoC_vs_EquipoD] #4 evento EquipoC_vs_EquipoD 4
+>> [EquipoC_vs_EquipoD] #5 evento EquipoC_vs_EquipoD 5
+>> [EquipoC_vs_EquipoD] #6 evento EquipoC_vs_EquipoD 6
+>> [EquipoC_vs_EquipoD] #7 evento EquipoC_vs_EquipoD 7
+>> [EquipoC_vs_EquipoD] #8 evento EquipoC_vs_EquipoD 8
+>> [EquipoC_vs_EquipoD] #9 evento EquipoC_vs_EquipoD 9
+>> [EquipoC_vs_EquipoD] #10 evento EquipoC_vs_EquipoD 10

@@ -1,0 +1,26 @@
+[Publisher] Enviando al broker 127.0.0.1:5000 (UDP)
+[Publisher] Publicando en el tema: EquipoC_vs_EquipoD
+[Publisher] Escriba cada evento y presione Enter para publicarlo.
+[Publisher] Escriba 'salir' para terminar.
+
+Evento #1 > [Publisher] Mensaje #1 publicado: "evento EquipoC_vs_EquipoD 1"
+
+Evento #2 > [Publisher] Mensaje #2 publicado: "evento EquipoC_vs_EquipoD 2"
+
+Evento #3 > [Publisher] Mensaje #3 publicado: "evento EquipoC_vs_EquipoD 3"
+
+Evento #4 > [Publisher] Mensaje #4 publicado: "evento EquipoC_vs_EquipoD 4"
+
+Evento #5 > [Publisher] Mensaje #5 publicado: "evento EquipoC_vs_EquipoD 5"
+
+Evento #6 > [Publisher] Mensaje #6 publicado: "evento EquipoC_vs_EquipoD 6"
+
+Evento #7 > [Publisher] Mensaje #7 publicado: "evento EquipoC_vs_EquipoD 7"
+
+Evento #8 > [Publisher] Mensaje #8 publicado: "evento EquipoC_vs_EquipoD 8"
+
+Evento #9 > [Publisher] Mensaje #9 publicado: "evento EquipoC_vs_EquipoD 9"
+
+Evento #10 > [Publisher] Mensaje #10 publicado: "evento EquipoC_vs_EquipoD 10"
+
+Evento #11 > [Publisher] Se publicaron 10 mensaje(s) en total.

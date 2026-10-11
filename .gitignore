@@ -1,1 +1,16 @@
-capturas/
+# Binarios compilados
+tcp/broker_tcp
+tcp/publisher_tcp
+tcp/subscriber_tcp
+udp/broker_udp
+udp/publisher_udp
+udp/subscriber_udp
+quic/broker_quic
+quic/publisher_quic
+quic/subscriber_quic
+
+# Certificado y llave de QUIC (se generan con make cert)
+*.pem
+
+# Resultados de las pruebas
+mediciones/

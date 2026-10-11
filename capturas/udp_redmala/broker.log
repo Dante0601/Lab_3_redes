@@ -1,0 +1,80 @@
+[Broker] Escuchando UDP en el puerto 5000...
+[Broker] Suscriptor 127.0.0.1:50023 suscrito al tema 'EquipoA_vs_EquipoB'
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#2 evento 2'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#7 evento 7'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#28 evento 28'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#3 evento 3'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#4 evento 4'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#6 evento 6'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#35 evento 35'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#8 evento 8'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#9 evento 9'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#10 evento 10'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#39 evento 39'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#11 evento 11'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#13 evento 13'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#15 evento 15'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#16 evento 16'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#18 evento 18'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#20 evento 20'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#21 evento 21'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#22 evento 22'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#23 evento 23'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#25 evento 25'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#26 evento 26'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#30 evento 30'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#31 evento 31'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#32 evento 32'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#33 evento 33'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#36 evento 36'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#37 evento 37'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#38 evento 38'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#41 evento 41'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#42 evento 42'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#43 evento 43'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#44 evento 44'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#45 evento 45'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#46 evento 46'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#47 evento 47'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#48 evento 48'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#49 evento 49'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)
+[Broker] PUB recibido -> tema='EquipoA_vs_EquipoB' contenido='#50 evento 50'
+[Broker] Mensaje del tema 'EquipoA_vs_EquipoB' difundido a 1 suscriptor(es)

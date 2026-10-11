@@ -1,0 +1,14 @@
+[Subscriber] Suscripcion enviada al broker 127.0.0.1:5000 (UDP)
+[Subscriber] Suscrito al tema: EquipoA_vs_EquipoB
+[Subscriber] Esperando mensajes... (Ctrl+C para salir)
+
+>> [EquipoA_vs_EquipoB] #1 evento EquipoA_vs_EquipoB 1
+>> [EquipoA_vs_EquipoB] #2 evento EquipoA_vs_EquipoB 2
+>> [EquipoA_vs_EquipoB] #3 evento EquipoA_vs_EquipoB 3
+>> [EquipoA_vs_EquipoB] #4 evento EquipoA_vs_EquipoB 4
+>> [EquipoA_vs_EquipoB] #5 evento EquipoA_vs_EquipoB 5
+>> [EquipoA_vs_EquipoB] #6 evento EquipoA_vs_EquipoB 6
+>> [EquipoA_vs_EquipoB] #7 evento EquipoA_vs_EquipoB 7
+>> [EquipoA_vs_EquipoB] #8 evento EquipoA_vs_EquipoB 8
+>> [EquipoA_vs_EquipoB] #9 evento EquipoA_vs_EquipoB 9
+>> [EquipoA_vs_EquipoB] #10 evento EquipoA_vs_EquipoB 10

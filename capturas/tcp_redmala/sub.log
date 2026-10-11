@@ -1,0 +1,56 @@
+[Subscriber] Conectado al broker 127.0.0.1:5000
+[Subscriber] Suscrito al tema: EquipoA_vs_EquipoB
+[Subscriber] Esperando mensajes... (Ctrl+C para salir)
+
+>> [EquipoA_vs_EquipoB] evento 1
+>> [EquipoA_vs_EquipoB] evento 2
+>> [EquipoA_vs_EquipoB] evento 3
+>> [EquipoA_vs_EquipoB] evento 4
+>> [EquipoA_vs_EquipoB] evento 5
+>> [EquipoA_vs_EquipoB] evento 6
+>> [EquipoA_vs_EquipoB] evento 7
+>> [EquipoA_vs_EquipoB] evento 8
+>> [EquipoA_vs_EquipoB] evento 9
+>> [EquipoA_vs_EquipoB] evento 10
+>> [EquipoA_vs_EquipoB] evento 11
+>> [EquipoA_vs_EquipoB] evento 12
+>> [EquipoA_vs_EquipoB] evento 13
+>> [EquipoA_vs_EquipoB] evento 14
+>> [EquipoA_vs_EquipoB] evento 15
+>> [EquipoA_vs_EquipoB] evento 16
+>> [EquipoA_vs_EquipoB] evento 17
+>> [EquipoA_vs_EquipoB] evento 18
+>> [EquipoA_vs_EquipoB] evento 19
+>> [EquipoA_vs_EquipoB] evento 20
+>> [EquipoA_vs_EquipoB] evento 21
+>> [EquipoA_vs_EquipoB] evento 22
+>> [EquipoA_vs_EquipoB] evento 23
+>> [EquipoA_vs_EquipoB] evento 24
+>> [EquipoA_vs_EquipoB] evento 25
+>> [EquipoA_vs_EquipoB] evento 26
+>> [EquipoA_vs_EquipoB] evento 27
+>> [EquipoA_vs_EquipoB] evento 28
+>> [EquipoA_vs_EquipoB] evento 29
+>> [EquipoA_vs_EquipoB] evento 30
+>> [EquipoA_vs_EquipoB] evento 31
+>> [EquipoA_vs_EquipoB] evento 32
+>> [EquipoA_vs_EquipoB] evento 33
+>> [EquipoA_vs_EquipoB] evento 34
+>> [EquipoA_vs_EquipoB] evento 35
+>> [EquipoA_vs_EquipoB] evento 36
+>> [EquipoA_vs_EquipoB] evento 37
+>> [EquipoA_vs_EquipoB] evento 38
+>> [EquipoA_vs_EquipoB] evento 39
+>> [EquipoA_vs_EquipoB] evento 40
+>> [EquipoA_vs_EquipoB] evento 41
+>> [EquipoA_vs_EquipoB] evento 42
+>> [EquipoA_vs_EquipoB] evento 43
+>> [EquipoA_vs_EquipoB] evento 44
+>> [EquipoA_vs_EquipoB] evento 45
+>> [EquipoA_vs_EquipoB] evento 46
+>> [EquipoA_vs_EquipoB] evento 47
+>> [EquipoA_vs_EquipoB] evento 48
+>> [EquipoA_vs_EquipoB] evento 49
+>> [EquipoA_vs_EquipoB] evento 50
+
+[Subscriber] El broker cerro la conexion.

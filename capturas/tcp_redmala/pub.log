@@ -1,0 +1,106 @@
+[Publisher] Conectado al broker 127.0.0.1:5000
+[Publisher] Publicando en el tema: EquipoA_vs_EquipoB
+[Publisher] Escriba cada evento y presione Enter para publicarlo.
+[Publisher] Escriba 'salir' para terminar.
+
+Evento #1 > [Publisher] Mensaje #1 publicado: "evento 1"
+
+Evento #2 > [Publisher] Mensaje #2 publicado: "evento 2"
+
+Evento #3 > [Publisher] Mensaje #3 publicado: "evento 3"
+
+Evento #4 > [Publisher] Mensaje #4 publicado: "evento 4"
+
+Evento #5 > [Publisher] Mensaje #5 publicado: "evento 5"
+
+Evento #6 > [Publisher] Mensaje #6 publicado: "evento 6"
+
+Evento #7 > [Publisher] Mensaje #7 publicado: "evento 7"
+
+Evento #8 > [Publisher] Mensaje #8 publicado: "evento 8"
+
+Evento #9 > [Publisher] Mensaje #9 publicado: "evento 9"
+
+Evento #10 > [Publisher] Mensaje #10 publicado: "evento 10"
+
+Evento #11 > [Publisher] Mensaje #11 publicado: "evento 11"
+
+Evento #12 > [Publisher] Mensaje #12 publicado: "evento 12"
+
+Evento #13 > [Publisher] Mensaje #13 publicado: "evento 13"
+
+Evento #14 > [Publisher] Mensaje #14 publicado: "evento 14"
+
+Evento #15 > [Publisher] Mensaje #15 publicado: "evento 15"
+
+Evento #16 > [Publisher] Mensaje #16 publicado: "evento 16"
+
+Evento #17 > [Publisher] Mensaje #17 publicado: "evento 17"
+
+Evento #18 > [Publisher] Mensaje #18 publicado: "evento 18"
+
+Evento #19 > [Publisher] Mensaje #19 publicado: "evento 19"
+
+Evento #20 > [Publisher] Mensaje #20 publicado: "evento 20"
+
+Evento #21 > [Publisher] Mensaje #21 publicado: "evento 21"
+
+Evento #22 > [Publisher] Mensaje #22 publicado: "evento 22"
+
+Evento #23 > [Publisher] Mensaje #23 publicado: "evento 23"
+
+Evento #24 > [Publisher] Mensaje #24 publicado: "evento 24"
+
+Evento #25 > [Publisher] Mensaje #25 publicado: "evento 25"
+
+Evento #26 > [Publisher] Mensaje #26 publicado: "evento 26"
+
+Evento #27 > [Publisher] Mensaje #27 publicado: "evento 27"
+
+Evento #28 > [Publisher] Mensaje #28 publicado: "evento 28"
+
+Evento #29 > [Publisher] Mensaje #29 publicado: "evento 29"
+
+Evento #30 > [Publisher] Mensaje #30 publicado: "evento 30"
+
+Evento #31 > [Publisher] Mensaje #31 publicado: "evento 31"
+
+Evento #32 > [Publisher] Mensaje #32 publicado: "evento 32"
+
+Evento #33 > [Publisher] Mensaje #33 publicado: "evento 33"
+
+Evento #34 > [Publisher] Mensaje #34 publicado: "evento 34"
+
+Evento #35 > [Publisher] Mensaje #35 publicado: "evento 35"
+
+Evento #36 > [Publisher] Mensaje #36 publicado: "evento 36"
+
+Evento #37 > [Publisher] Mensaje #37 publicado: "evento 37"
+
+Evento #38 > [Publisher] Mensaje #38 publicado: "evento 38"
+
+Evento #39 > [Publisher] Mensaje #39 publicado: "evento 39"
+
+Evento #40 > [Publisher] Mensaje #40 publicado: "evento 40"
+
+Evento #41 > [Publisher] Mensaje #41 publicado: "evento 41"
+
+Evento #42 > [Publisher] Mensaje #42 publicado: "evento 42"
+
+Evento #43 > [Publisher] Mensaje #43 publicado: "evento 43"
+
+Evento #44 > [Publisher] Mensaje #44 publicado: "evento 44"
+
+Evento #45 > [Publisher] Mensaje #45 publicado: "evento 45"
+
+Evento #46 > [Publisher] Mensaje #46 publicado: "evento 46"
+
+Evento #47 > [Publisher] Mensaje #47 publicado: "evento 47"
+
+Evento #48 > [Publisher] Mensaje #48 publicado: "evento 48"
+
+Evento #49 > [Publisher] Mensaje #49 publicado: "evento 49"
+
+Evento #50 > [Publisher] Mensaje #50 publicado: "evento 50"
+
+Evento #51 > [Publisher] Se publicaron 50 mensaje(s) en total.

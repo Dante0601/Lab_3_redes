@@ -1,0 +1,26 @@
+[Publisher] Conectado al broker 127.0.0.1:5000
+[Publisher] Publicando en el tema: EquipoA_vs_EquipoB
+[Publisher] Escriba cada evento y presione Enter para publicarlo.
+[Publisher] Escriba 'salir' para terminar.
+
+Evento #1 > [Publisher] Mensaje #1 publicado: "el partido da inicio"
+
+Evento #2 > [Publisher] Mensaje #2 publicado: "tiro libre por parte de Lopez del equipo A"
+
+Evento #3 > [Publisher] Mensaje #3 publicado: "Rianio saca la pelota y la tira hacia el lado del equipo contrario"
+
+Evento #4 > [Publisher] Mensaje #4 publicado: "El arbitro pita una falta a favor del equipo A por parte de Velazquez"
+
+Evento #5 > [Publisher] Mensaje #5 publicado: "se cobra el penalty a favor del equipo A"
+
+Evento #6 > [Publisher] Mensaje #6 publicado: "el capitan cobra penalty a favor del equipo A y marca un gol"
+
+Evento #7 > [Publisher] Mensaje #7 publicado: "comienza el segundo tiempo con saque de porteria del equipo B"
+
+Evento #8 > [Publisher] Mensaje #8 publicado: "Se evalua una posible falta por parte del equipo A al equipo B"
+
+Evento #9 > [Publisher] Mensaje #9 publicado: "se llama al var para verificar la falta"
+
+Evento #10 > [Publisher] Mensaje #10 publicado: "Morantes cobra tiro libre y saca el balon del estadio. Les toco ir a comprar otro"
+
+Evento #11 > [Publisher] Se publicaron 10 mensaje(s) en total.

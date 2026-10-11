@@ -143,26 +143,102 @@ en un directorio temporal.
 
 ### Capturas para Wireshark e imágenes del informe
 
-Con `CAPTURA=1`, los scripts graban el tráfico del puerto 5000 con `dumpcap`
-(viene con Wireshark; el usuario debe estar en el grupo `wireshark`, no hace falta sudo):
+Las capturas se guardan en `capturas/` en formato pcap clásico (`.pcap`), junto con
+los logs de la terminal de cada proceso:
+
+| Archivo | Escenario | Se genera con |
+|---------|-----------|---------------|
+| `tcp_pubsub.pcap`  | TCP en red local      | `./captura_tcp.sh` |
+| `udp_pubsub.pcap`  | UDP en red local      | `CAPTURA=1 ./test.sh udp` |
+| `tcp_redmala.pcap` | TCP con red degradada | `CAPTURA=1 ./test_red_mala.sh tcp` |
+| `udp_redmala.pcap` | UDP con red degradada | `CAPTURA=1 ./test_red_mala.sh udp` |
+
+Los logs de cada captura quedan en la carpeta con el mismo nombre (por ejemplo,
+`capturas/udp_pubsub/`). Las capturas se graban con `dumpcap`, que viene con
+Wireshark. El usuario debe estar en el grupo `wireshark`; no hace falta sudo,
+salvo para `tc` en la prueba de red degradada.
 
 ```sh
-CAPTURA=1 ./test.sh                  # capturas/tcp.pcapng y udp.pcapng
-CAPTURA=1 ./test.sh udp              # solo un protocolo
-CAPTURA=1 PAUSA=1 N=5 ./test.sh tcp  # menos mensajes y más separados
-CAPTURA=1 ./test_red_mala.sh         # capturas/redmala_tcp.pcapng y redmala_udp.pcapng
+./captura_tcp.sh                       # tcp_pubsub.pcap
+CAPTURA=1 ./test.sh udp                # udp_pubsub.pcap
+CAPTURA=1 PAUSA=1 N=5 ./test.sh udp    # menos mensajes y más separados
+CAPTURA=1 ./test_red_mala.sh           # tcp_redmala.pcap y udp_redmala.pcap
 ```
 
-En este modo los logs quedan en `capturas/<proto>/`, se muestra la salida de cada
-suscriptor y los publicadores esperan `PAUSA` segundos entre eventos (0.3 por
-defecto), para que cada mensaje se distinga en la línea de tiempo.
-
-Al terminar, `test.sh` imprime el comando para abrir cada captura
-(`wireshark -r capturas/tcp.pcapng`).
+Con `CAPTURA=1`, `test.sh` graba solo UDP. La captura TCP en red local la genera
+`captura_tcp.sh`, y así no se reemplaza. En este modo se muestra la salida de cada
+suscriptor, y los publicadores esperan `PAUSA` segundos entre eventos (0.3 por
+defecto) para que cada mensaje se distinga en la línea de tiempo. En la red
+degradada, `dumpcap` captura en `lo` después de netem: los paquetes perdidos no
+aparecen, y en TCP se ven las retransmisiones (filtro `tcp.analysis.retransmission`).
 
 Filtros útiles: `tcp.port == 5000` (handshake, `PSH`, `FIN`), `udp.port == 5000`
 (un datagrama por mensaje). En TCP y UDP el contenido (`SUB|...`, `PUB|...`,
 `MSG|...`) se lee en texto plano en el panel de bytes.
+
+#### Captura TCP del informe (`captura_tcp.sh`)
+
+`captura_tcp.sh` repite la prueba TCP de la sección 1 del informe y la graba en
+`capturas/tcp_pubsub.pcap` (formato pcap clásico). El escenario tiene 1 broker,
+2 suscriptores y 2 publicadores, todos en el tema `EquipoA_vs_EquipoB`. Cada
+publicador envía 10 eventos del partido, intercalados y separados por 0.5 s, y
+el broker reenvía cada uno a los 2 suscriptores. En total son 4 conexiones TCP
+hacia `127.0.0.1:5000`. La prueba tarda unos 15 s.
+
+```sh
+./captura_tcp.sh                 # graba capturas/tcp_pubsub.pcap
+MEDIR=1 ./captura_tcp.sh         # además mide CPU y memoria
+wireshark capturas/tcp_pubsub.pcap
+```
+
+Resultado de la última corrida: cada suscriptor recibió 20/20 mensajes y la
+captura tiene 148 paquetes. Los logs de la terminal quedan en
+`capturas/tcp_pubsub/` (`broker.log`, `sub_1.log`, `sub_2.log`, `pub_1.log`, `pub_2.log`).
+
+En Wireshark se ven:
+
+- los 4 handshakes de tres vías (`SYN`, `SYN-ACK`, `ACK`), uno por cliente;
+- un `SUB|EquipoA_vs_EquipoB|` de cada suscriptor;
+- por cada evento, un segmento `PUB|...` del publicador al broker y dos `MSG|...`
+  del broker, uno a cada suscriptor, cada uno con su `ACK`;
+- los cierres con `FIN`/`ACK` al final.
+
+Los filtros `tcp.flags.syn == 1`, `tcp.flags.fin == 1` y `tcp.len > 0` separan
+el establecimiento de conexión, el cierre y los segmentos con datos. Con
+*Follow → TCP Stream* se ve el texto de una conexión completa.
+
+### Medición de CPU y memoria
+
+Con `MEDIR=1`, `test.sh` y `captura_tcp.sh` miden cada proceso: el broker, los
+suscriptores y, en `captura_tcp.sh`, también los publicadores se miden en
+`/proc/<pid>` justo antes de detenerlos. En `test.sh` los publicadores se miden
+con `/usr/bin/time`. Se reporta la CPU de usuario y de sistema, la memoria
+residente máxima (`VmHWM`) y el % de CPU promedio durante la vida del proceso.
+Las tablas quedan en `mediciones/`.
+
+```sh
+MEDIR=1 N=20000 ./test.sh        # mediciones/recursos_tcp.csv y recursos_udp.csv
+MEDIR=1 ./captura_tcp.sh         # mediciones/recursos_captura_tcp.csv
+```
+
+El kernel cuenta la CPU en pasos de 10 ms. Con 10 o 20 mensajes todos los
+procesos aparecen con 0.00 s, así que para comparar TCP y UDP se usa un N
+grande. Resultados con `N=20000` (2 publicadores, 40 000 eventos publicados y
+80 000 reenvíos):
+
+| Proceso | TCP: CPU total (s) | TCP: memoria máx. (KB) | UDP: CPU total (s) | UDP: memoria máx. (KB) |
+|---------|-------------------:|-----------------------:|-------------------:|-----------------------:|
+| broker            | 0.47 | 1408 | 0.40 | 1372 |
+| suscriptor A      | 0.07 | 1472 | 0.09 | 1532 |
+| suscriptor B      | 0.07 | 1468 | 0.08 | 1512 |
+| suscriptor A+B    | 0.14 | 1472 | 0.16 | 1536 |
+| publicador A      | 0.19 | 1436 | 0.17 | 1484 |
+| publicador B      | 0.15 | 1436 | 0.16 | 1488 |
+
+En los dos protocolos, la mayor parte de la CPU es tiempo de sistema
+(llamadas `send`/`recv`/`sendto`/`recvfrom`). El broker es el proceso que más
+CPU usa, porque recibe cada publicación y la reenvía. La memoria es casi la
+misma, alrededor de 1.4–1.5 MB por proceso, porque todos usan buffers fijos.
 
 ## Funciones de OpenSSL usadas en la versión QUIC
 

@@ -10,7 +10,7 @@
 #   CAPTURA=1 ./test_red_mala.sh       además guarda capturas para Wireshark
 #
 # Con CAPTURA=1 se graba el tráfico del puerto 5000 en
-# capturas/redmala_<proto>.pcapng, los logs quedan en capturas/redmala_<proto>/
+# capturas/<proto>_redmala.pcap, los logs quedan en capturas/<proto>_redmala/
 # y se muestra la salida del suscriptor. dumpcap captura en lo después de netem,
 # así que los paquetes perdidos no aparecen y en TCP se ven las retransmisiones.
 #
@@ -50,7 +50,7 @@ detener() {
 iniciar_captura() {
     local archivo=$1
     rm -f "$archivo"
-    dumpcap -q -i lo -f "port $PUERTO" -w "$archivo" >"$archivo.log" 2>&1 &
+    dumpcap -q -P -i lo -f "port $PUERTO" -w "$archivo" >"$archivo.log" 2>&1 &
     PID_CAPTURA=$!
     for _ in $(seq 1 50); do
         [ -s "$archivo" ] && break
@@ -73,9 +73,9 @@ detener_captura() {
 probar() {
     local proto=$1
     local logs
-    local pcap=$DIR_CAPTURAS/redmala_$proto.pcapng
+    local pcap=$DIR_CAPTURAS/${proto}_redmala.pcap
     if [ "$CAPTURA" = 1 ]; then
-        logs=$DIR_CAPTURAS/redmala_$proto
+        logs=$DIR_CAPTURAS/${proto}_redmala
         rm -rf "$logs"; mkdir -p "$logs"
     else
         logs=$(mktemp -d "${TMPDIR:-/tmp}/redmala_${proto}.XXXXXX")

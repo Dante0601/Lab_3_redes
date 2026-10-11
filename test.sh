@@ -11,12 +11,16 @@
 #   CAPTURA=1 ./test.sh    además guarda capturas para Wireshark en capturas/
 #
 # Variables:
-#   CAPTURA=1   graba el tráfico del puerto 5000 en capturas/<proto>.pcapng con
-#               dumpcap, conserva los logs en capturas/<proto>/ y muestra la
+#   CAPTURA=1   graba el tráfico UDP del puerto 5000 en capturas/udp_pubsub.pcap
+#               con dumpcap, conserva los logs en capturas/udp_pubsub/ y muestra la
 #               salida de cada suscriptor (útil para las imágenes del informe).
 #   PAUSA=s     segundos entre eventos de un publicador (por defecto 0, o 0.3
 #               con CAPTURA=1, para que los mensajes se distingan en la captura).
 #   N=n         eventos por publicador (por defecto 10).
+#   MEDIR=1     mide CPU y memoria de cada proceso (broker, suscriptores y
+#               publicadores), muestra una tabla y la guarda en
+#               mediciones/recursos_<proto>.csv. Conviene usar un N grande,
+#               por ejemplo: MEDIR=1 N=5000 ./test.sh
 
 set -u
 cd "$(dirname "$0")"
@@ -27,6 +31,9 @@ N=${N:-10}
 CAPTURA=${CAPTURA:-0}
 if [ "$CAPTURA" = 1 ]; then PAUSA=${PAUSA:-0.3}; else PAUSA=${PAUSA:-0}; fi
 DIR_CAPTURAS=capturas
+MEDIR=${MEDIR:-0}
+DIR_MEDICIONES=mediciones
+TICKS=$(getconf CLK_TCK)
 TEMA_A=EquipoA_vs_EquipoB
 TEMA_B=EquipoC_vs_EquipoD
 
@@ -89,7 +96,7 @@ detener() {
 iniciar_captura() {
     local archivo=$1
     rm -f "$archivo"
-    dumpcap -q -i lo -f "port $PUERTO" -w "$archivo" >"$archivo.log" 2>&1 &
+    dumpcap -q -P -i lo -f "port $PUERTO" -w "$archivo" >"$archivo.log" 2>&1 &
     PID_CAPTURA=$!
     for _ in $(seq 1 50); do
         [ -s "$archivo" ] && break
@@ -110,12 +117,38 @@ detener_captura() {
     wait "$PID_CAPTURA" 2>/dev/null
 }
 
+# Mide un proceso que sigue vivo leyendo /proc: CPU de usuario y de sistema
+# acumulada, memoria residente máxima (VmHWM) y tiempo de vida. Agrega una
+# línea CSV al archivo indicado.
+medir_vivo() {
+    local pid=$1 etiqueta=$2 archivo=$3
+    [ -r "/proc/$pid/stat" ] || { echo "$etiqueta,,,,,," >>"$archivo"; return; }
+    local utime stime inicio uptime rss
+    read -r utime stime inicio < <(awk '{print $14, $15, $22}' "/proc/$pid/stat")
+    uptime=$(cut -d' ' -f1 /proc/uptime)
+    rss=$(awk '/^VmHWM:/ {print $2}' "/proc/$pid/status")
+    awk -v e="$etiqueta" -v u="$utime" -v s="$stime" -v i="$inicio" -v up="$uptime" \
+        -v r="$rss" -v t="$TICKS" 'BEGIN {
+            us = u / t; ss = s / t; vida = up - i / t
+            printf "%s,%.2f,%.2f,%.2f,%d,%.2f,%.1f\n", e, us, ss, us + ss, r, vida, 100 * (us + ss) / vida
+        }' >>"$archivo"
+}
+
+# Agrega al CSV la medición de un publicador, que /usr/bin/time dejó en un
+# archivo con el formato "usuario sistema rss_max_kb tiempo_real".
+medir_terminado() {
+    local archivo_time=$1 etiqueta=$2 archivo=$3
+    awk -v e="$etiqueta" 'END {
+        printf "%s,%.2f,%.2f,%.2f,%d,%.2f,%.1f\n", e, $1, $2, $1 + $2, $3, $4, ($4 > 0 ? 100 * ($1 + $2) / $4 : 0)
+    }' "$archivo_time" >>"$archivo"
+}
+
 probar() {
     local proto=$1
     local dir=$proto
     local logs
     if [ "$CAPTURA" = 1 ]; then
-        logs=$DIR_CAPTURAS/$proto
+        logs=$DIR_CAPTURAS/${proto}_pubsub
         rm -rf "$logs"; mkdir -p "$logs"
     else
         logs=$(mktemp -d "${TMPDIR:-/tmp}/pubsub_${proto}.XXXXXX")
@@ -128,7 +161,7 @@ probar() {
         return 1
     fi
 
-    local pcap=$DIR_CAPTURAS/$proto.pcapng
+    local pcap=$DIR_CAPTURAS/${proto}_pubsub.pcap
     if [ "$CAPTURA" = 1 ]; then
         iniciar_captura "$pcap" || return 1
     fi
@@ -150,14 +183,31 @@ probar() {
     sleep 1   # dar tiempo a que el broker registre todas las suscripciones
 
     # Los dos publicadores corren en paralelo; cada uno manda N eventos y "salir".
+    # Con MEDIR=1 cada publicador corre bajo /usr/bin/time, que guarda su
+    # CPU, memoria máxima y tiempo real al terminar.
+    local medidor=()
     local pids_pub=()
     for tema in $TEMA_A $TEMA_B; do
+        [ "$MEDIR" = 1 ] && medidor=(/usr/bin/time -f "%U %S %M %e" -o "$logs/time_pub_$tema")
         { for i in $(seq 1 $N); do echo "evento $tema $i"; sleep "$PAUSA"; done; echo salir; } \
-            | "./$dir/publisher_$proto" $IP "$PUERTO" "$tema" >"$logs/pub_$tema.log" 2>&1 &
+            | "${medidor[@]}" "./$dir/publisher_$proto" $IP "$PUERTO" "$tema" >"$logs/pub_$tema.log" 2>&1 &
         pids_pub+=($!)
     done
     wait "${pids_pub[@]}"
     sleep 1   # dar tiempo a que lleguen los últimos MSG
+
+    # Broker y suscriptores se miden antes de detenerlos.
+    local csv=""
+    if [ "$MEDIR" = 1 ]; then
+        csv=$DIR_MEDICIONES/recursos_$proto.csv
+        echo "proceso,cpu_usuario_s,cpu_sistema_s,cpu_total_s,memoria_max_kb,tiempo_s,cpu_promedio_pct" >"$csv"
+        medir_vivo "$pid_broker" broker "$csv"
+        medir_vivo "$pid_sub_a" suscriptor_A "$csv"
+        medir_vivo "$pid_sub_b" suscriptor_B "$csv"
+        medir_vivo "$pid_sub_ab" suscriptor_A+B "$csv"
+        medir_terminado "$logs/time_pub_$TEMA_A" publicador_A "$csv"
+        medir_terminado "$logs/time_pub_$TEMA_B" publicador_B "$csv"
+    fi
 
     # Se detiene primero el broker: en TCP el suscriptor ve el cierre,
     # sale de su bucle normalmente y vacía su salida estándar.
@@ -171,6 +221,11 @@ probar() {
     verificar "$logs/sub_a.log" $TEMA_A $TEMA_B "suscriptor A" || r=1
     verificar "$logs/sub_b.log" $TEMA_B $TEMA_A "suscriptor B" || r=1
     verificar_ambos "$logs/sub_ab.log" "suscriptor A+B" || r=1
+    if [ "$MEDIR" = 1 ]; then
+        echo "  --- CPU y memoria ($N eventos por publicador) ---"
+        column -t -s, "$csv" | sed 's/^/  | /'
+        echo "  mediciones en $csv"
+    fi
     if [ "$proto" = udp ] && grep -q AVISO "$logs"/sub_*.log; then
         echo "  nota: avisos de secuencia en UDP:"; grep -h AVISO "$logs"/sub_*.log | sed 's/^/  | /'
     fi
@@ -194,10 +249,24 @@ if [ ${#protocolos[@]} -eq 0 ]; then
     protocolos=(tcp udp)
 fi
 
+# La captura TCP (capturas/tcp_pubsub.pcap) la genera captura_tcp.sh; aquí no
+# se graba TCP para no reemplazarla.
 if [ "$CAPTURA" = 1 ]; then
+    sin_tcp=()
+    for p in "${protocolos[@]}"; do
+        if [ "$p" = tcp ]; then
+            echo "TCP omitido con CAPTURA=1: la captura TCP se genera con ./captura_tcp.sh"
+        else
+            sin_tcp+=("$p")
+        fi
+    done
+    [ ${#sin_tcp[@]} -eq 0 ] && exit 0
+    protocolos=("${sin_tcp[@]}")
     command -v dumpcap >/dev/null || { echo "CAPTURA=1 requiere dumpcap (paquete wireshark)"; exit 1; }
     mkdir -p "$DIR_CAPTURAS"
 fi
+
+[ "$MEDIR" = 1 ] && mkdir -p "$DIR_MEDICIONES"
 
 fallos=0
 for p in "${protocolos[@]}"; do
@@ -215,7 +284,7 @@ if [ "$CAPTURA" = 1 ]; then
     echo
     echo "Para abrir las capturas en Wireshark:"
     for p in "${protocolos[@]}"; do
-        echo "  wireshark -r $DIR_CAPTURAS/$p.pcapng"
+        echo "  wireshark -r $DIR_CAPTURAS/${p}_pubsub.pcap"
     done
 fi
 exit $fallos

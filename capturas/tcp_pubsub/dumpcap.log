@@ -1,0 +1,5 @@
+dumpcap: '-P' is deprecated; use '-F pcap' to set the output format to pcap.
+Capturing on 'Loopback: lo'
+File: capturas/tcp_pubsub.pcap
+Packets captured: 148
+Packets received/dropped on interface 'Loopback: lo': 148/0 (pcap:0/dumpcap:0/flushed:0/ps_ifdrop:0) (100.0%)
