@@ -133,13 +133,36 @@ tema recibió los 10 mensajes de su tema y ninguno del otro, y que el suscriptor
 ambos temas recibió los 20.
 
 ```sh
-./test.sh                 # TCP y UDP; también QUIC si openssl es >= 3.5
+./test.sh                 # TCP y UDP
 ./test.sh udp             # solo un protocolo
 make test                 # equivalente a ./test.sh
 ```
 
 Si alguna prueba falla, el script muestra la salida del suscriptor y deja los logs
 en un directorio temporal.
+
+### Capturas para Wireshark e imágenes del informe
+
+Con `CAPTURA=1`, los scripts graban el tráfico del puerto 5000 con `dumpcap`
+(viene con Wireshark; el usuario debe estar en el grupo `wireshark`, no hace falta sudo):
+
+```sh
+CAPTURA=1 ./test.sh                  # capturas/tcp.pcapng y udp.pcapng
+CAPTURA=1 ./test.sh udp              # solo un protocolo
+CAPTURA=1 PAUSA=1 N=5 ./test.sh tcp  # menos mensajes y más separados
+CAPTURA=1 ./test_red_mala.sh         # capturas/redmala_tcp.pcapng y redmala_udp.pcapng
+```
+
+En este modo los logs quedan en `capturas/<proto>/`, se muestra la salida de cada
+suscriptor y los publicadores esperan `PAUSA` segundos entre eventos (0.3 por
+defecto), para que cada mensaje se distinga en la línea de tiempo.
+
+Al terminar, `test.sh` imprime el comando para abrir cada captura
+(`wireshark -r capturas/tcp.pcapng`).
+
+Filtros útiles: `tcp.port == 5000` (handshake, `PSH`, `FIN`), `udp.port == 5000`
+(un datagrama por mensaje). En TCP y UDP el contenido (`SUB|...`, `PUB|...`,
+`MSG|...`) se lee en texto plano en el panel de bytes.
 
 ## Funciones de OpenSSL usadas en la versión QUIC
 

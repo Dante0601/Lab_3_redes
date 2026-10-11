@@ -3,7 +3,7 @@
 #   make            compila TCP y UDP
 #   make quic       compila QUIC (requiere OpenSSL >= 3.5)
 #   make cert       genera quic/cert.pem y quic/key.pem (autofirmado)
-#   make test       corre test.sh (TCP, UDP y QUIC si hay OpenSSL >= 3.5)
+#   make test       corre test.sh (TCP y UDP)
 #   make clean      borra binarios
 
 CC      = gcc

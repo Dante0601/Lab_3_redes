@@ -248,6 +248,8 @@ int atender_cliente(int i) {
 static int seleccionar_alpn(SSL *ssl, const unsigned char **out,
                             unsigned char *out_len, const unsigned char *in,
                             unsigned int in_len, void *arg) {
+    (void)ssl;
+    (void)arg;
     if (SSL_select_next_proto((unsigned char **)out, out_len, alpn_pubsub,
                               sizeof(alpn_pubsub), in, in_len) == OPENSSL_NPN_NEGOTIATED)
         return SSL_TLSEXT_ERR_OK;

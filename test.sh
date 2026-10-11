@@ -6,26 +6,29 @@
 # mensajes de su tema y ninguno del otro, y que el de ambos temas recibe los 20.
 #
 # Uso:
-#   ./test.sh              prueba TCP y UDP, y QUIC si openssl es >= 3.5
+#   ./test.sh              prueba TCP y UDP
 #   ./test.sh tcp udp      prueba solo los protocolos indicados
+#   CAPTURA=1 ./test.sh    además guarda capturas para Wireshark en capturas/
+#
+# Variables:
+#   CAPTURA=1   graba el tráfico del puerto 5000 en capturas/<proto>.pcapng con
+#               dumpcap, conserva los logs en capturas/<proto>/ y muestra la
+#               salida de cada suscriptor (útil para las imágenes del informe).
+#   PAUSA=s     segundos entre eventos de un publicador (por defecto 0, o 0.3
+#               con CAPTURA=1, para que los mensajes se distingan en la captura).
+#   N=n         eventos por publicador (por defecto 10).
 
 set -u
 cd "$(dirname "$0")"
 
 PUERTO=5000
 IP=127.0.0.1
-N=10
+N=${N:-10}
+CAPTURA=${CAPTURA:-0}
+if [ "$CAPTURA" = 1 ]; then PAUSA=${PAUSA:-0.3}; else PAUSA=${PAUSA:-0}; fi
+DIR_CAPTURAS=capturas
 TEMA_A=EquipoA_vs_EquipoB
 TEMA_B=EquipoC_vs_EquipoD
-
-# Devuelve 0 si "openssl version" es OpenSSL >= 3.5.
-openssl_soporta_quic() {
-    local v
-    v=$(openssl version 2>/dev/null) || return 1
-    [[ "$v" =~ ^OpenSSL\ ([0-9]+)\.([0-9]+) ]] || return 1
-    local mayor=${BASH_REMATCH[1]} menor=${BASH_REMATCH[2]}
-    [ "$mayor" -gt 3 ] || { [ "$mayor" -eq 3 ] && [ "$menor" -ge 5 ]; }
-}
 
 # Cuenta cuántas líneas ">> [tema] ..." de un archivo corresponden a un tema.
 contar_tema() {
@@ -81,11 +84,42 @@ detener() {
     done
 }
 
+# Inicia dumpcap sobre loopback filtrando el puerto del broker. Deja el PID
+# en PID_CAPTURA y espera a que el archivo exista (captura lista).
+iniciar_captura() {
+    local archivo=$1
+    rm -f "$archivo"
+    dumpcap -q -i lo -f "port $PUERTO" -w "$archivo" >"$archivo.log" 2>&1 &
+    PID_CAPTURA=$!
+    for _ in $(seq 1 50); do
+        [ -s "$archivo" ] && break
+        kill -0 "$PID_CAPTURA" 2>/dev/null || break
+        sleep 0.1
+    done
+    if ! kill -0 "$PID_CAPTURA" 2>/dev/null; then
+        echo "  FALLA: dumpcap no pudo capturar (¿usuario en el grupo wireshark?)"
+        sed 's/^/  | /' "$archivo.log"
+        return 1
+    fi
+    rm -f "$archivo.log"
+}
+
+# Detiene dumpcap con SIGINT para que cierre bien el archivo.
+detener_captura() {
+    kill -INT "$PID_CAPTURA" 2>/dev/null
+    wait "$PID_CAPTURA" 2>/dev/null
+}
+
 probar() {
     local proto=$1
     local dir=$proto
     local logs
-    logs=$(mktemp -d "${TMPDIR:-/tmp}/pubsub_${proto}.XXXXXX")
+    if [ "$CAPTURA" = 1 ]; then
+        logs=$DIR_CAPTURAS/$proto
+        rm -rf "$logs"; mkdir -p "$logs"
+    else
+        logs=$(mktemp -d "${TMPDIR:-/tmp}/pubsub_${proto}.XXXXXX")
+    fi
 
     echo "== $proto (puerto $PUERTO) =="
 
@@ -94,12 +128,12 @@ probar() {
         return 1
     fi
 
-    if [ "$proto" = quic ]; then
-        make -s cert >/dev/null 2>&1 || { echo "  FALLA generando certificado"; return 1; }
-        "./$dir/broker_$proto" quic/cert.pem quic/key.pem >"$logs/broker.log" 2>&1 &
-    else
-        "./$dir/broker_$proto" >"$logs/broker.log" 2>&1 &
+    local pcap=$DIR_CAPTURAS/$proto.pcapng
+    if [ "$CAPTURA" = 1 ]; then
+        iniciar_captura "$pcap" || return 1
     fi
+
+    "./$dir/broker_$proto" >"$logs/broker.log" 2>&1 &
     local pid_broker=$!
     sleep 0.5
     if ! kill -0 "$pid_broker" 2>/dev/null; then
@@ -118,7 +152,7 @@ probar() {
     # Los dos publicadores corren en paralelo; cada uno manda N eventos y "salir".
     local pids_pub=()
     for tema in $TEMA_A $TEMA_B; do
-        { for i in $(seq 1 $N); do echo "evento $tema $i"; done; echo salir; } \
+        { for i in $(seq 1 $N); do echo "evento $tema $i"; sleep "$PAUSA"; done; echo salir; } \
             | "./$dir/publisher_$proto" $IP "$PUERTO" "$tema" >"$logs/pub_$tema.log" 2>&1 &
         pids_pub+=($!)
     done
@@ -130,6 +164,8 @@ probar() {
     detener "$pid_broker"
     sleep 0.3
     detener "$pid_sub_a" "$pid_sub_b" "$pid_sub_ab"
+    sleep 0.3   # que la captura alcance a registrar los cierres de conexión
+    [ "$CAPTURA" = 1 ] && detener_captura
 
     local r=0
     verificar "$logs/sub_a.log" $TEMA_A $TEMA_B "suscriptor A" || r=1
@@ -138,7 +174,14 @@ probar() {
     if [ "$proto" = udp ] && grep -q AVISO "$logs"/sub_*.log; then
         echo "  nota: avisos de secuencia en UDP:"; grep -h AVISO "$logs"/sub_*.log | sed 's/^/  | /'
     fi
-    if [ $r -ne 0 ]; then
+    if [ "$CAPTURA" = 1 ]; then
+        for f in sub_a sub_b sub_ab; do
+            echo "  --- salida de $f ---"
+            sed 's/^/  | /' "$logs/$f.log"
+        done
+        echo "  captura: $pcap ($(du -h "$pcap" | cut -f1))"
+        echo "  logs en $logs"
+    elif [ $r -ne 0 ]; then
         echo "  logs en $logs"
     else
         rm -rf "$logs"
@@ -149,11 +192,11 @@ probar() {
 protocolos=("$@")
 if [ ${#protocolos[@]} -eq 0 ]; then
     protocolos=(tcp udp)
-    if openssl_soporta_quic; then
-        protocolos+=(quic)
-    else
-        echo "QUIC omitido: 'openssl version' = '$(openssl version 2>/dev/null)' (se requiere OpenSSL >= 3.5)"
-    fi
+fi
+
+if [ "$CAPTURA" = 1 ]; then
+    command -v dumpcap >/dev/null || { echo "CAPTURA=1 requiere dumpcap (paquete wireshark)"; exit 1; }
+    mkdir -p "$DIR_CAPTURAS"
 fi
 
 fallos=0
@@ -166,5 +209,13 @@ if [ $fallos -eq 0 ]; then
     echo "Todas las pruebas pasaron (${protocolos[*]})."
 else
     echo "$fallos protocolo(s) con fallas."
+fi
+
+if [ "$CAPTURA" = 1 ]; then
+    echo
+    echo "Para abrir las capturas en Wireshark:"
+    for p in "${protocolos[@]}"; do
+        echo "  wireshark -r $DIR_CAPTURAS/$p.pcapng"
+    done
 fi
 exit $fallos

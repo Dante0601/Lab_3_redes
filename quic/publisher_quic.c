@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>        // close()
+#include <unistd.h>        // close(), usleep()
 #include <arpa/inet.h>     // inet_pton(), htons()
 #include <sys/socket.h>    // socket(), connect()
 #include <netinet/in.h>    // struct sockaddr_in
@@ -198,8 +198,16 @@ int main(int argc, char *argv[]) {
     // y luego se cierra la conexión QUIC con el cierre RÁPIDO, que envía
     // CONNECTION_CLOSE de inmediato. Con el cierre normal (bucle de
     // SSL_shutdown()) el programa tardaba ~31 s, hasta el idle timeout.
+    // Incluso el cierre rápido en modo bloqueante a veces esperaba esos
+    // ~30 s (con varios publishers a la vez), así que se usa NO_BLOCK y se
+    // espera como máximo 1 s a que el cierre termine.
     SSL_stream_conclude(ssl, 0);
-    SSL_shutdown_ex(ssl, SSL_SHUTDOWN_FLAG_RAPID, NULL, 0);
+    for (int intento = 0; intento < 100; intento++) {
+        if (SSL_shutdown_ex(ssl, SSL_SHUTDOWN_FLAG_RAPID | SSL_SHUTDOWN_FLAG_NO_BLOCK,
+                            NULL, 0) == 1)
+            break;
+        usleep(10000); // 10 ms; el hilo interno de OpenSSL sigue trabajando
+    }
 
     SSL_free(ssl);
     SSL_CTX_free(ctx);
