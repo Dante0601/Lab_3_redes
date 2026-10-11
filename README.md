@@ -148,7 +148,7 @@ los logs de la terminal de cada proceso:
 
 | Archivo | Escenario | Se genera con |
 |---------|-----------|---------------|
-| `tcp_pubsub.pcap`  | TCP en red local      | `./captura_tcp.sh` |
+| `tcp_pubsub.pcap`  | TCP en red local      | Captura del informe; ningún script la genera |
 | `udp_pubsub.pcap`  | UDP en red local      | `CAPTURA=1 ./test.sh udp` |
 | `tcp_redmala.pcap` | TCP con red degradada | `CAPTURA=1 ./test_red_mala.sh tcp` |
 | `udp_redmala.pcap` | UDP con red degradada | `CAPTURA=1 ./test_red_mala.sh udp` |
@@ -161,14 +161,13 @@ Wireshark. El usuario debe estar en el grupo `wireshark`; no hace falta sudo,
 salvo para `tc` en la prueba de red degradada.
 
 ```sh
-./captura_tcp.sh                       # tcp_pubsub.pcap
 CAPTURA=1 ./test.sh udp                # udp_pubsub.pcap
 CAPTURA=1 PAUSA=1 N=5 ./test.sh udp    # menos mensajes y más separados
 CAPTURA=1 ./test_red_mala.sh           # tcp_redmala.pcap y udp_redmala.pcap
 ```
 
-Con `CAPTURA=1`, `test.sh` graba solo UDP. La captura TCP en red local la genera
-`captura_tcp.sh`, y así no se reemplaza. En este modo se muestra la salida de cada
+Con `CAPTURA=1`, `test.sh` graba solo UDP, para no reemplazar
+`tcp_pubsub.pcap`. En este modo se muestra la salida de cada
 suscriptor, y los publicadores esperan `PAUSA` segundos entre eventos (0.3 por
 defecto) para que cada mensaje se distinga en la línea de tiempo. En la red
 degradada, `dumpcap` captura en `lo` después de netem: los paquetes perdidos no
@@ -178,50 +177,22 @@ Filtros útiles: `tcp.port == 5000` (handshake, `PSH`, `FIN`), `udp.port == 5000
 (un datagrama por mensaje). En TCP y UDP el contenido (`SUB|...`, `PUB|...`,
 `MSG|...`) se lee en texto plano en el panel de bytes.
 
-#### Captura TCP del informe (`captura_tcp.sh`)
-
-`captura_tcp.sh` repite la prueba TCP de la sección 1 del informe y la graba en
-`capturas/tcp_pubsub.pcap` (formato pcap clásico). El escenario tiene 1 broker,
-2 suscriptores y 2 publicadores, todos en el tema `EquipoA_vs_EquipoB`. Cada
-publicador envía 10 eventos del partido, intercalados y separados por 0.5 s, y
-el broker reenvía cada uno a los 2 suscriptores. En total son 4 conexiones TCP
-hacia `127.0.0.1:5000`. La prueba tarda unos 15 s.
-
-```sh
-./captura_tcp.sh                 # graba capturas/tcp_pubsub.pcap
-MEDIR=1 ./captura_tcp.sh         # además mide CPU y memoria
-wireshark capturas/tcp_pubsub.pcap
-```
-
-La captura usada en el informe (`capturas/tcp_pubsub.pcap`) tiene 159 paquetes.
-Al correr el script, los logs de la terminal quedan en `capturas/tcp_pubsub/`
-(`broker.log`, `sub_1.log`, `sub_2.log`, `pub_1.log`, `pub_2.log`). Una
-corrida nueva reemplaza la captura del informe.
-
-En Wireshark se ven:
-
-- los 4 handshakes de tres vías (`SYN`, `SYN-ACK`, `ACK`), uno por cliente;
-- un `SUB|EquipoA_vs_EquipoB|` de cada suscriptor;
-- por cada evento, un segmento `PUB|...` del publicador al broker y dos `MSG|...`
-  del broker, uno a cada suscriptor, cada uno con su `ACK`;
-- los cierres con `FIN`/`ACK` al final.
-
-Los filtros `tcp.flags.syn == 1`, `tcp.flags.fin == 1` y `tcp.len > 0` separan
-el establecimiento de conexión, el cierre y los segmentos con datos. Con
+`tcp_pubsub.pcap` tiene 159 paquetes y se abre con
+`wireshark capturas/tcp_pubsub.pcap`. Los filtros `tcp.flags.syn == 1`,
+`tcp.flags.fin == 1` y `tcp.len > 0` separan el establecimiento de conexión,
+el cierre y los segmentos con datos. Con
 *Follow → TCP Stream* se ve el texto de una conexión completa.
 
 ### Medición de CPU y memoria
 
-Con `MEDIR=1`, `test.sh` y `captura_tcp.sh` miden cada proceso: el broker, los
-suscriptores y, en `captura_tcp.sh`, también los publicadores se miden en
-`/proc/<pid>` justo antes de detenerlos. En `test.sh` los publicadores se miden
-con `/usr/bin/time`. Se reporta la CPU de usuario y de sistema, la memoria
+Con `MEDIR=1`, `test.sh` mide cada proceso. El broker y los suscriptores se
+miden en `/proc/<pid>` justo antes de detenerlos, y los publicadores con
+`/usr/bin/time`. Se reporta la CPU de usuario y de sistema, la memoria
 residente máxima (`VmHWM`) y el % de CPU promedio durante la vida del proceso.
 Las tablas quedan en `mediciones/`.
 
 ```sh
 MEDIR=1 N=20000 ./test.sh        # mediciones/recursos_tcp.csv y recursos_udp.csv
-MEDIR=1 ./captura_tcp.sh         # mediciones/recursos_captura_tcp.csv
 ```
 
 El kernel cuenta la CPU en pasos de 10 ms. Con 10 o 20 mensajes todos los

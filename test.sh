@@ -249,13 +249,13 @@ if [ ${#protocolos[@]} -eq 0 ]; then
     protocolos=(tcp udp)
 fi
 
-# La captura TCP (capturas/tcp_pubsub.pcap) la genera captura_tcp.sh; aquí no
-# se graba TCP para no reemplazarla.
+# La captura TCP del informe (capturas/tcp_pubsub.pcap) no la genera este
+# script; aquí no se graba TCP para no reemplazarla.
 if [ "$CAPTURA" = 1 ]; then
     sin_tcp=()
     for p in "${protocolos[@]}"; do
         if [ "$p" = tcp ]; then
-            echo "TCP omitido con CAPTURA=1: la captura TCP se genera con ./captura_tcp.sh"
+            echo "TCP omitido con CAPTURA=1: no se reemplaza capturas/tcp_pubsub.pcap (captura del informe)"
         else
             sin_tcp+=("$p")
         fi
